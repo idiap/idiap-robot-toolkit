@@ -18,3 +18,26 @@ class Robot:
     def release(self):
         """Function cal call as a replacement of __del__"""
         raise NotImplementedError
+
+
+class RobotFactory:
+    def __init__(self):
+        self._builders = {}
+
+    def register(self, key, builder):
+        self._builders[key] = builder
+
+    def available(self):
+        return list(self._builders.keys())
+
+    def create(self, name, **kwargs):
+        builder_key = name
+        builder = self._builders.get(builder_key)
+
+        if not builder:
+            raise ValueError(f"Should be one of {self.available()}")
+
+        return builder(**kwargs)
+
+
+factory = RobotFactory()
