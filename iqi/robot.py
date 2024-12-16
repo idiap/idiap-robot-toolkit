@@ -13,5 +13,9 @@ __all__ = ["Robot"]
 class Robot:
     """Base class for all robots in the package"""
 
-    def __init__(self, name):
+    def __init__(self, name="Idiap"):
         self.name = name
+
+    def release(self):
+        """Function cal call as a replacement of __del__"""
+        raise NotImplementedError
