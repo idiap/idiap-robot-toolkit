@@ -2,7 +2,7 @@
 
 # SPDX-FileCopyrightText: Copyright 2024 Idiap Research Institute <contact@idiap.ch>
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
-# SPDX-License-Identifier: UNLICENSED
+# SPDX-License-Identifier: See LICENSE
 #
 # This file is part of the irt package
 
@@ -13,6 +13,7 @@ import cv2
 import irt
 
 WINDOW_NAME = "Idiap Visualization Window"
+
 
 if __name__ == "__main__":
     # fmt: off
