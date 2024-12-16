@@ -1,0 +1,25 @@
+stages:
+  - build
+  - test
+
+build_image:
+  stage: build
+  image:
+    name: docker
+  tags:
+    - linux
+    - docker
+  script:
+    - docker build --tag $CI_REGISTRY_IMAGE .
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker push $CI_REGISTRY_IMAGE
+
+python_version:
+  stage: test
+  image:
+    name: $CI_REGISTRY_IMAGE
+  tags:
+    - linux
+    - docker
+  script:
+    - python3 --version
