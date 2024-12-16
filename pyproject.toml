@@ -1,0 +1,25 @@
+[project]
+
+name = "iqi"
+version = "0.1.0"
+description = "Idiap's wrapper for NAOqi robots"
+authors = [
+  {name = "Olivier Canévet", email = "olivier.canevet@idiap.ch"},
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Operating System :: Unix",
+]
+
+requires-python = ">=3.7"
+
+dependencies = [
+  "numpy",
+  "opencv-python",
+  "qi",
+]
