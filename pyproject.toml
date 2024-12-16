@@ -1,12 +1,16 @@
-[project]
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
+
+[project]
 name = "irt"
 version = "0.1.0"
 description = "Idiap's Robot Toolkit"
 authors = [
   {name = "Olivier Canévet", email = "olivier.canevet@idiap.ch"},
 ]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 readme = "README.md"
 
 classifiers = [
@@ -18,8 +22,5 @@ classifiers = [
 
 requires-python = ">=3.7"
 
-dependencies = [
-  "numpy",
-  "opencv-python",
-  "qi",
-]
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
