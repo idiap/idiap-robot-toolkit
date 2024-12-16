@@ -1,1 +1,7 @@
-# Wizard-of-Oz for NAOqi robots
+# Idiap's wrapper for NAOqi robots
+
+## Installation
+
+```bash
+pip install -e .
+```
