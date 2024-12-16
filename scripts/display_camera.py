@@ -7,8 +7,11 @@
 # This file is part of the irt package
 
 import argparse
+import time
 
 import cv2
+
+from loguru import logger
 
 import irt
 
@@ -22,11 +25,17 @@ if __name__ == "__main__":
 
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
 
-    robot = irt.Pepper("Pepper")
+    robot = irt.Pepper(name="Pepper", top_resolution="vga")
+    fps = irt.FPS()
 
+    frame_id = 0
     while True:
-        frame = robot.get_frame()
-        print(frame.shape)
+        success, frame = robot.get_top_frame()
+
+        if not success:
+            time.sleep(0.01)
+            continue
+
         cv2.imshow(WINDOW_NAME, frame)
 
         key = cv2.waitKey(1)
@@ -38,5 +47,11 @@ if __name__ == "__main__":
             cv2.setWindowProperty(
                 WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, int(1 - prop_value)
             )
+
+        fps.tic()
+
+        logger.info(f"{fps():.1f} shape {frame.shape}")
+
+        frame_id += 1
 
     robot.release()
