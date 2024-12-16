@@ -4,7 +4,7 @@
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
 # SPDX-License-Identifier: UNLICENSED
 #
-# This file is part of the iqi package
+# This file is part of the irt package
 
 
 __all__ = ["Robot"]

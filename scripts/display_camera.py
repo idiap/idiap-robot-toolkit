@@ -4,13 +4,13 @@
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
 # SPDX-License-Identifier: UNLICENSED
 #
-# This file is part of the iqi package
+# This file is part of the irt package
 
 import argparse
 
 import cv2
 
-import iqi
+import irt
 
 WINDOW_NAME = "Idiap Visualization Window"
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
 
-    robot = iqi.Pepper("Pepper")
+    robot = irt.Pepper("Pepper")
 
     while True:
         frame = robot.get_frame()

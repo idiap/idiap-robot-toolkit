@@ -2,12 +2,12 @@
 
 import unittest
 
-import iqi
+import irt
 
 
 class TestPepper(unittest.TestCase):
     def test_init(self):
-        robot = iqi.Pepper("pepper")
+        robot = irt.Pepper("pepper")
 
 
 if __name__ == "__main__":

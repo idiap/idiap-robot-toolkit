@@ -4,12 +4,12 @@
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
 # SPDX-License-Identifier: UNLICENSED
 #
-# This file is part of the iqi package
+# This file is part of the irt package
 
 
 import importlib.metadata
 
-__version__ = importlib.metadata.version("iqi")
+__version__ = importlib.metadata.version("irt")
 
 from .robot import *
 from .pepper import *
