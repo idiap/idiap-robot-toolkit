@@ -13,6 +13,10 @@ build_image:
     - docker build --tag $CI_REGISTRY_IMAGE .
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker push $CI_REGISTRY_IMAGE
+  rules:
+    - changes:
+      - Dockerfile
+      - requirements.txt
 
 python_version:
   stage: test
@@ -23,3 +27,14 @@ python_version:
     - docker
   script:
     - python3 --version
+
+irt_version:
+  stage: test
+  image:
+    name: $CI_REGISTRY_IMAGE
+  tags:
+    - linux
+    - docker
+  script:
+    - pip install -e .
+    - python3 -c "import irt ; print(irt.__version__)"
