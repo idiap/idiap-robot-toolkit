@@ -2,20 +2,19 @@
 
 # SPDX-FileCopyrightText: Copyright 2024 Idiap Research Institute <contact@idiap.ch>
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
-# SPDX-License-Identifier: UNLICENSED
+# SPDX-License-Identifier: See LICENSE
 #
 # This file is part of the irt package
-
 
 import os
 import time
 
 import numpy as np
-
 import qi
 
-from .robot import Robot
+from loguru import logger
 
+from .robot import Robot
 
 __all__ = ["Pepper"]
 
@@ -29,7 +28,7 @@ class Pepper(Robot):
         self.session.connect(f"tcp://{ip}:{port}")
 
         if self.session.isConnected():
-            print(f"Connected to Pepper '{self.name}'")
+            logger.info(f"Connected to Pepper '{self.name}'")
 
             camera_name = self.name
             camera_index = 0
@@ -41,7 +40,7 @@ class Pepper(Robot):
             # In case previous run did not unsubscribe
             for name in self.video_device.getSubscribers():
                 if name.startswith(camera_name):
-                    print(f"Unregistering {name}")
+                    logger.warning(f"Unregistering {name}")
                     self.video_device.unsubscribe(name)
 
             self.camera = self.video_device.subscribeCamera(
@@ -52,11 +51,6 @@ class Pepper(Robot):
                 fps,
             )
 
-            if self.camera:
-                print("Camera OK")
-            else:
-                print("Camera not OK")
-
     def get_frame(self):
         time.sleep(0.001)
         frame = self.video_device.getImageRemote(self.camera)
@@ -66,5 +60,5 @@ class Pepper(Robot):
     def release(self):
         for name in self.video_device.getSubscribers():
             if name.startswith(self.name):
-                print(f"Unregistering {name}")
+                logger.warning(f"Unregistering {name}")
                 self.video_device.unsubscribe(name)
