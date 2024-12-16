@@ -9,5 +9,5 @@ RUN apt update && \
 
 ENV PIP_NO_CACHE_DIR=1
 
-COPY pyproject.toml .
-RUN pip install -e .
+COPY requirements.txt .
+RUN pip install -r requirements.txt
