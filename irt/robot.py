@@ -15,8 +15,12 @@ class Robot:
     def __init__(self, name="Idiap"):
         self.name = name
 
+    def get_frame(self):
+        """Return success and frame of the main camera"""
+        raise NotImplementedError
+
     def release(self):
-        """Function cal call as a replacement of __del__"""
+        """Function to call as a replacement of __del__"""
         raise NotImplementedError
 
 
