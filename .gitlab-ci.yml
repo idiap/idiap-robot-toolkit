@@ -38,3 +38,14 @@ irt_version:
   script:
     - pip install -e .
     - python3 -c "import irt ; print(irt.__version__)"
+
+test_robot:
+  stage: test
+  image:
+    name: $CI_REGISTRY_IMAGE
+  tags:
+    - linux
+    - docker
+  script:
+    - pip install -e .
+    - python3 tests/test_robot.py
