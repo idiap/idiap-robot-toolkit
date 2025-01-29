@@ -96,6 +96,9 @@ class QiRobot(Robot):
                 logger.warning(f"Unregistering {name}")
                 self.video_device.unsubscribe(name)
 
+    def get_frame(self):
+        return self.get_top_frame()
+
     def get_top_frame(self):
         success, frame = False, None
         if self.top_camera is not None:
@@ -140,8 +143,10 @@ class Pepper(QiRobot):
 
 
 
-# def pepper_builder(
-#     ip=DEFAULT_IP,
-#     port=DEFAULT_PORT,
-# ):
-#     return Pepper(ip, port)
+def pepper_builder(
+    ip=DEFAULT_IP,
+    port=DEFAULT_PORT,
+):
+    return Pepper(ip, port)
+
+factory.register("pepper", pepper_builder)
