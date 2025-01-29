@@ -21,6 +21,10 @@ class Robot:
         """Return success and frame of the main camera"""
         raise NotImplementedError
 
+    def say(self, text):
+        """Say the input string"""
+        raise NotImplementedError
+
     def release(self):
         """Function to call as a replacement of __del__"""
         raise NotImplementedError
