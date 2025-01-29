@@ -6,6 +6,8 @@
 #
 # This file is part of the irt package
 
+import os
+
 __all__ = ["Robot"]
 
 
@@ -45,3 +47,31 @@ class RobotFactory:
 
 
 factory = RobotFactory()
+
+
+def add_parser_options(parser):
+    """Add command line options for robots"""
+    # fmt: off
+    g = parser.add_argument_group("robot", "Options for robots")
+    g.add_argument(
+        "--robot", type=str, default="fake",
+        choices=factory.available(),
+        help="Name of the robot to use"
+    )
+    g.add_argument(
+        "--ip", type=str, default=os.environ.get("NAO_IP", None),
+        help="IP of the robot"
+    )
+    g.add_argument(
+        "--port", type=int, default=9559,
+        help="Port for the TCP connexion"
+    )
+    # fmt: on
+
+
+def build_robot_from_args(args):
+    kwargs = {
+        "name": args.robot,
+    }
+    robot = factory.create(**kwargs)
+    return robot
