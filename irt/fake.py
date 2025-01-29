@@ -8,6 +8,8 @@
 
 import cv2
 
+from loguru import logger
+
 from .robot import factory
 from .robot import Robot
 
@@ -26,6 +28,9 @@ class FakeRobot(Robot):
     def __repr__(self):
         s = f"Fake robot '{self.name}'"
         return s
+
+    def say(self, text):
+        logger.info(text)
 
     def get_frame(self):
         success, frame = self.camera.read()
