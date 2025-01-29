@@ -23,6 +23,10 @@ class FakeRobot(Robot):
 
         self.camera = cv2.VideoCapture(camera_index)
 
+    def __repr__(self):
+        s = f"Fake robot '{self.name}'"
+        return s
+
     def get_frame(self):
         success, frame = self.camera.read()
         return success, frame
