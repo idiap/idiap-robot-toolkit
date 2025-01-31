@@ -21,16 +21,18 @@ WINDOW_NAME = "Idiap Visualization Window"
 if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
+    irt.robot.add_parser_options(parser)
     args = parser.parse_args()
 
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
 
-    robot = irt.Pepper(name="Pepper", top_resolution="vga")
+    robot = irt.robot.build_robot_from_args(args)
+
     fps = irt.FPS()
 
     frame_id = 0
     while True:
-        success, frame = robot.get_top_frame()
+        success, frame = robot.get_frame()
 
         if not success:
             time.sleep(0.01)
