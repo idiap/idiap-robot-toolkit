@@ -57,9 +57,12 @@ class QiRobot(Robot):
         self.session = qi.Session()
         self.session.connect(f"tcp://{ip}:{port}")
 
-        if not self.session.isConnected():
-            logger.info("Session is not connected")
+        if not self.robot_is_connected():
+            logger.info("No robot connected in constructor")
             return
+
+        # Speech
+        self.text_to_speech = self.session.service("ALTextToSpeech")
 
         # Cameras
         self.video_device = self.session.service("ALVideoDevice")
@@ -88,6 +91,20 @@ class QiRobot(Robot):
                 DEFAULT_COLOR_SPACE,
                 top_fps,
             )
+
+    def robot_is_connected(self):
+        """Return True if the robot is connected"""
+        if not self.session.isConnected():
+            logger.error("The robot is not connected")
+            return False
+        else:
+            return True
+
+    def say(self, text):
+        logger.info(f"Say '{text}'")
+
+        if not self.robot_is_connected():
+            return
 
     def release(self):
         print(self.video_device.getSubscribers())
