@@ -25,7 +25,7 @@ DEFAULT_IP = os.environ.get("NAO_IP", None)
 DEFAULT_PORT = "9559"
 DEFAULT_FPS = 30
 DEFAULT_COLOR_SPACE = 13
-
+DEFAULT_RESOLUTION = "vga"
 
 class CameraIndex(enum.IntEnum):
     TOP_CAMERA = 0
@@ -68,8 +68,11 @@ class QiRobot(Robot):
         self.video_device = self.session.service("ALVideoDevice")
         self.release()
 
-        # self.top_camera = None
+        self.top_camera = None
         self.bottom_camera = None
+
+        if top_resolution is None and bottom_resolution is None:
+            top_resolution = DEFAULT_RESOLUTION
 
         camera_name = self.name
         if top_resolution is not None:
@@ -158,12 +161,17 @@ class Pepper(QiRobot):
             bottom_fps=bottom_fps,
         )
 
+    def __repr__(self):
+        s = "Pepper robot"
+        return s
+
 
 
 def pepper_builder(
+    name="Pepper",
     ip=DEFAULT_IP,
     port=DEFAULT_PORT,
 ):
-    return Pepper(ip, port)
+    return Pepper(name, ip, port)
 
 factory.register("pepper", pepper_builder)
