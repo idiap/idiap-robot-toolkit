@@ -76,6 +76,8 @@ def add_parser_options(parser):
 def build_robot_from_args(args):
     kwargs = {
         "name": args.robot,
+        "ip": args.ip,
+        "port": args.port,
     }
     robot = factory.create(**kwargs)
     return robot
