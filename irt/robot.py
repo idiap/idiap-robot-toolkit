@@ -71,8 +71,20 @@ def add_parser_options(parser):
         help="Port for the TCP connexion"
     )
     g.add_argument(
+        "--top-resolution", type=str, default=None,
+        help="Camera resolution"
+    )
+    g.add_argument(
+        "--bottom-resolution", type=str, default=None,
+        help="Camera resolution"
+    )
+    g.add_argument(
         "--with-animation", action="store_true",
         help="Whether to use animate speech"
+    )
+    g.add_argument(
+        "--with-breathing", action="store_true",
+        help="Whether to use breathing"
     )
     # fmt: on
 
@@ -82,7 +94,10 @@ def build_robot_from_args(args):
         "name": args.robot,
         "ip": args.ip,
         "port": args.port,
+        "top_resolution": args.top_resolution,
+        "bottom_resolution": args.bottom_resolution,
         "with_animation": args.with_animation,
+        "with_breathing": args.with_breathing,
     }
     robot = factory.create(**kwargs)
     return robot

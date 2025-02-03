@@ -77,6 +77,7 @@ class QiRobot(Robot):
         bottom_fps=DEFAULT_FPS,
         language=DEFAULT_LANGUAGE,
         with_animation=False,
+        with_breathing=False,
     ):
         super().__init__(name)
 
@@ -112,6 +113,7 @@ class QiRobot(Robot):
         camera_name = self.name
         if top_resolution is not None:
             resolution = resolution_to_index(top_resolution)
+            logger.info(f"Set top camera resolution to '{resolution}'")
             self.top_camera = self.video_device_service.subscribeCamera(
                 camera_name,
                 CameraIndex.TOP_CAMERA.value,
@@ -122,6 +124,7 @@ class QiRobot(Robot):
 
         if bottom_resolution is not None:
             resolution = resolution_to_index(bottom_resolution)
+            logger.info(f"Set bottom camera resolution to '{resolution}'")
             self.bottom_camera = self.video_device_service.subscribeCamera(
                 camera_name,
                 CameraIndex.BOTTOM_CAMERA.value,
@@ -133,6 +136,8 @@ class QiRobot(Robot):
         # Face detection
         self.face_detection_service = self.session.service("ALFaceDetection")
         self.disable_face_traker()  # Fix bug in 2.5.5.5
+
+        self.set_breathing(with_breathing)
 
     def robot_is_connected(self):
         """Return True if the robot is connected"""
@@ -170,7 +175,7 @@ class QiRobot(Robot):
             self.tts_service.say(text)
 
     def release(self):
-        print(self.video_device_service.getSubscribers())
+        # print(self.video_device_service.getSubscribers())
         for name in self.video_device_service.getSubscribers():
             if name.startswith(self.name):
                 logger.warning(f"Unregistering {name}")
@@ -211,6 +216,12 @@ class QiRobot(Robot):
         logger.info("Resting")
         self.motion_service.rest()
 
+    def set_breathing(self, value=True, chain_name="Arms"):
+        """Whether to enable breathing"""
+        if not self.robot_is_connected():
+            return
+        self.motion_service.setBreathEnabled(chain_name, value)
+
 
 class Pepper(QiRobot):
     """Class to control Pepper robot"""
@@ -226,6 +237,7 @@ class Pepper(QiRobot):
         bottom_fps=DEFAULT_FPS,
         language=DEFAULT_LANGUAGE,
         with_animation=False,
+        with_breathing=False,
     ):
         super().__init__(
             name,
@@ -237,6 +249,7 @@ class Pepper(QiRobot):
             bottom_fps=bottom_fps,
             language=language,
             with_animation=with_animation,
+            with_breathing=with_breathing,
         )
 
     def __repr__(self):
@@ -248,16 +261,26 @@ def pepper_builder(
     name="Pepper",
     ip=DEFAULT_IP,
     port=DEFAULT_PORT,
+    top_resolution=None,
+    top_fps=DEFAULT_FPS,
+    bottom_resolution=None,
+    bottom_fps=DEFAULT_FPS,
     language=DEFAULT_LANGUAGE,
     with_animation=False,
+    with_breathing=False,
     **_ignored,
 ):
     return Pepper(
         name=name,
         ip=ip,
         port=port,
+        top_resolution=top_resolution,
+        top_fps=DEFAULT_FPS,
+        bottom_resolution=bottom_resolution,
+        bottom_fps=DEFAULT_FPS,
         language=language,
         with_animation=with_animation,
+        with_breathing=with_breathing,
     )
 
 
