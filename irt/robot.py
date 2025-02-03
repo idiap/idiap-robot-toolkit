@@ -70,6 +70,10 @@ def add_parser_options(parser):
         "--port", type=int, default=9559,
         help="Port for the TCP connexion"
     )
+    g.add_argument(
+        "--with-animation", action="store_true",
+        help="Whether to use animate speech"
+    )
     # fmt: on
 
 
@@ -78,6 +82,7 @@ def build_robot_from_args(args):
         "name": args.robot,
         "ip": args.ip,
         "port": args.port,
+        "with_animation": args.with_animation,
     }
     robot = factory.create(**kwargs)
     return robot
