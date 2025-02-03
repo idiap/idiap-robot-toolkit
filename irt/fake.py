@@ -37,7 +37,7 @@ class FakeRobot(Robot):
         return success, frame
 
 
-def fake_robot_builder(name="Fake", camera_index=0):
+def fake_robot_builder(name="Fake", camera_index=0, **_ignored):
     return FakeRobot(name=name, camera_index=camera_index)
 
 
