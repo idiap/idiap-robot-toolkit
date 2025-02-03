@@ -47,10 +47,22 @@ SPEECH_PREPROCESSING = {
 
 def preprocess_speech(text, replace):
     """Replace the elements key:value from input dict `replace`"""
+    if len(text) == 0:
+        return text
+
+    ends_with_dots = False
+
+    if text[-1] == ".":
+        ends_with_dots = True
+        text = text[:-1]
+
     text = text.replace("...", ".")
 
     for old, new in replace.items():
         text = text.replace(old, new)
+
+    if ends_with_dots:
+        text += "."
 
     return text
 
