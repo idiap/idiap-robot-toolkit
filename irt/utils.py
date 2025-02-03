@@ -7,6 +7,8 @@
 # This file is part of the irt package
 
 import collections
+import platform
+import subprocess
 import time
 
 
@@ -32,3 +34,14 @@ class FPS:
             end = self.timestamps[-1]
             fps = (N - 1) / (end - start)
         return fps
+
+
+def ping(host):
+    """Returns True if host (str) responds to a ping request.
+
+    Taken from: https://stackoverflow.com/a/32684938
+
+    """
+    param = "-n" if platform.system().lower() == "windows" else "-c"
+    command = ["ping", param, "1", host]
+    return subprocess.call(command) == 0
