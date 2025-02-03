@@ -40,6 +40,8 @@ class CameraIndex(enum.IntEnum):
 SPEECH_PREPROCESSING = {
     ".": " \\pau=1000\\ ",
     ",": " \\pau=500\\ ",
+    "!": " \\pau=500\\ ",
+    "?": " \\pau=500\\ ",
 }
 
 
@@ -160,6 +162,7 @@ class QiRobot(Robot):
 
         if self.with_animation:
             configuration = {"bodyLanguageMode": "contextual"}
+            self.wake_up()
             self.animated_speech_service.say(text, configuration)
             self.posture_service.goToPosture("StandInit", 0.4)
 
