@@ -79,6 +79,18 @@ def add_parser_options(parser):
         help="Camera resolution"
     )
     g.add_argument(
+        "--language", type=str, default="English",
+        help="Language for text to speech"
+    )
+    g.add_argument(
+        "--tts-speed", type=int, default=100,
+        help="Speed for text to speech synthesis"
+    )
+    g.add_argument(
+        "--tts-pitch", type=int, default=100,
+        help="Pitch for text to speech synthesis"
+    )
+    g.add_argument(
         "--with-animation", action="store_true",
         help="Whether to use animate speech"
     )
@@ -96,6 +108,9 @@ def build_robot_from_args(args):
         "port": args.port,
         "top_resolution": args.top_resolution,
         "bottom_resolution": args.bottom_resolution,
+        "language": args.language,
+        "tts_speed": args.tts_speed,
+        "tts_pitch": args.tts_pitch,
         "with_animation": args.with_animation,
         "with_breathing": args.with_breathing,
     }
