@@ -28,6 +28,8 @@ DEFAULT_FPS = 30
 DEFAULT_COLOR_SPACE = 13
 DEFAULT_RESOLUTION = "vga"
 DEFAULT_LANGUAGE = "English"
+DEFAULT_TTS_SPEED = 100
+DEFAULT_TTS_PITCH = 100
 
 
 class CameraIndex(enum.IntEnum):
@@ -50,10 +52,10 @@ def preprocess_speech(text, replace):
     if len(text) == 0:
         return text
 
-    ends_with_dots = False
+    add_last_mask = ""
 
-    if text[-1] == ".":
-        ends_with_dots = True
+    if text[-1] in [".", "!", "?"]:
+        add_last_mask = text[-1]
         text = text[:-1]
 
     text = text.replace("...", ".")
@@ -61,8 +63,8 @@ def preprocess_speech(text, replace):
     for old, new in replace.items():
         text = text.replace(old, new)
 
-    if ends_with_dots:
-        text += "."
+    if len(add_last_mask):
+        text += add_last_mask
 
     return text
 
@@ -88,6 +90,8 @@ class QiRobot(Robot):
         bottom_resolution=None,
         bottom_fps=DEFAULT_FPS,
         language=DEFAULT_LANGUAGE,
+        tts_speed=DEFAULT_TTS_SPEED,
+        tts_pitch=DEFAULT_TTS_PITCH,
         with_animation=False,
         with_breathing=False,
     ):
@@ -150,6 +154,8 @@ class QiRobot(Robot):
         self.disable_face_traker()  # Fix bug in 2.5.5.5
 
         self.set_breathing(with_breathing)
+        self.tts_service.setParameter("speed", tts_speed)
+        self.tts_service.setParameter("pitch", tts_pitch)
 
     def robot_is_connected(self):
         """Return True if the robot is connected"""
@@ -218,8 +224,9 @@ class QiRobot(Robot):
         """Wake the robot up"""
         if not self.robot_is_connected():
             return
-        logger.info("Waking up")
-        self.motion_service.wakeUp()
+        if not self.motion_service.robotIsWakeUp():
+            logger.info("Waking up")
+            self.motion_service.wakeUp()
 
     def rest(self):
         """Rest the robot"""
@@ -248,6 +255,8 @@ class Pepper(QiRobot):
         bottom_resolution=None,
         bottom_fps=DEFAULT_FPS,
         language=DEFAULT_LANGUAGE,
+        tts_speed=DEFAULT_TTS_SPEED,
+        tts_pitch=DEFAULT_TTS_PITCH,
         with_animation=False,
         with_breathing=False,
     ):
@@ -260,6 +269,8 @@ class Pepper(QiRobot):
             bottom_resolution=bottom_resolution,
             bottom_fps=bottom_fps,
             language=language,
+            tts_speed=tts_speed,
+            tts_pitch=tts_pitch,
             with_animation=with_animation,
             with_breathing=with_breathing,
         )
@@ -278,6 +289,8 @@ def pepper_builder(
     bottom_resolution=None,
     bottom_fps=DEFAULT_FPS,
     language=DEFAULT_LANGUAGE,
+    tts_speed=DEFAULT_TTS_SPEED,
+    tts_pitch=DEFAULT_TTS_PITCH,
     with_animation=False,
     with_breathing=False,
     **_ignored,
@@ -291,6 +304,8 @@ def pepper_builder(
         bottom_resolution=bottom_resolution,
         bottom_fps=DEFAULT_FPS,
         language=language,
+        tts_speed=tts_speed,
+        tts_pitch=tts_pitch,
         with_animation=with_animation,
         with_breathing=with_breathing,
     )
