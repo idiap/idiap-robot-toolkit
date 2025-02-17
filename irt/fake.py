@@ -36,6 +36,8 @@ class FakeRobot(Robot):
         success, frame = self.camera.read()
         return success, frame
 
+    def __del__(self):
+        self.camera.release()
 
 def fake_robot_builder(name="Fake", camera_index=0, **_ignored):
     return FakeRobot(name=name, camera_index=camera_index)
