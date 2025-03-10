@@ -6,6 +6,9 @@
 #
 # This file is part of the irt package
 
+import time
+import threading
+
 import cv2
 
 from loguru import logger
@@ -24,20 +27,50 @@ class FakeRobot(Robot):
         super().__init__(name)
 
         self.camera = cv2.VideoCapture(camera_index)
+        self.lock = threading.Lock()
+        self.thread = None
+        self.running = False
+        self.success = False
+        self.frame = None
+        self.last_time_grabbed = 0
+        self.last_time_read = -1
+        self._start()
+
+    def stop(self):
+        if self.running:
+            self.running = False
+        if self.thread is not None:
+            self.thread.join()
+        self.camera.release()
 
     def __repr__(self):
         s = f"Fake robot '{self.name}'"
         return s
 
+    def _start(self):
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._update, args=(), daemon=True)
+            self.thread.start()
+            return self
+        return None
+
+    def _update(self):
+        while self.running:
+            success, frame = self.camera.read()
+            with self.lock:
+                self.success, self.frame = success, frame
+                time.sleep(0.001)
+
     def say(self, text):
         logger.info(text)
 
     def get_frame(self):
-        success, frame = self.camera.read()
-        return success, frame
+        return self.success, self.frame
 
     def __del__(self):
-        self.camera.release()
+        self.stop()
+
 
 def fake_robot_builder(name="Fake", camera_index=0, **_ignored):
     return FakeRobot(name=name, camera_index=camera_index)

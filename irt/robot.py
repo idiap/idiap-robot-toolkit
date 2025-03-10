@@ -17,6 +17,10 @@ class Robot:
     def __init__(self, name="Idiap"):
         self.name = name
 
+    def stop(self):
+        """Call this function at the end of the program"""
+        raise NotImplementedError
+
     def get_frame(self):
         """Return success and frame of the main camera"""
         raise NotImplementedError
