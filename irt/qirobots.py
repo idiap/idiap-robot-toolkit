@@ -157,6 +157,9 @@ class QiRobot(Robot):
         self.tts_service.setParameter("speed", tts_speed)
         self.tts_service.setParameter("pitch", tts_pitch)
 
+    def stop(self):
+        pass
+
     def robot_is_connected(self):
         """Return True if the robot is connected"""
         if not self.session.isConnected():
