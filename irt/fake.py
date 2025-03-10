@@ -41,7 +41,8 @@ class FakeRobot(Robot):
             self.running = False
         if self.thread is not None:
             self.thread.join()
-        self.camera.release()
+        if self.camera.isOpened():
+            self.camera.release()
 
     def __repr__(self):
         s = f"Fake robot '{self.name}'"
