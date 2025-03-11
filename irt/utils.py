@@ -8,6 +8,7 @@
 
 import collections
 import platform
+import socket
 import subprocess
 import time
 
@@ -36,12 +37,31 @@ class FPS:
         return fps
 
 
-def ping(host):
-    """Returns True if host (str) responds to a ping request.
+# def ping(host):
+#     """Returns True if host (str) responds to a ping request.
 
-    Taken from: https://stackoverflow.com/a/32684938
+#     Taken from: https://stackoverflow.com/a/32684938
 
+#     """
+#     param = "-n" if platform.system().lower() == "windows" else "-c"
+#     command = ["ping", param, "1", host]
+#     return subprocess.call(command) == 0
+
+
+def ping(server, port=22, timeout=3):
+    """Ping server
+
+    Take from: https://stackoverflow.com/a/67217558
     """
-    param = "-n" if platform.system().lower() == "windows" else "-c"
-    command = ["ping", param, "1", host]
-    return subprocess.call(command) == 0
+    if server is None:
+        return False
+
+    try:
+        socket.setdefaulttimeout(timeout)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((server, port))
+    except OSError as error:
+        return False
+    else:
+        s.close()
+        return True
