@@ -2,3 +2,5 @@ loguru
 numpy
 opencv-python
 qi
+PySide6
+qtpy
