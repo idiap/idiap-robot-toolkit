@@ -244,6 +244,21 @@ class QiRobot(Robot):
             return
         self.motion_service.setBreathEnabled(chain_name, value)
 
+    def set_language(self, language="English"):
+        """Set the language"""
+        if self.robot_is_connected():
+            logger.info(f"Setting language to {language}")
+            self.tts_service.setLanguage(language)
+
+    def get_available_languages(self):
+        """Return the list of available languages, and an empty list of the
+        robot is not connected
+
+        """
+        languages = []
+        if self.robot_is_connected():
+            languages = self.tts_service.getAvailableLanguages()
+        return languages
 
 class Pepper(QiRobot):
     """Class to control Pepper robot"""
