@@ -97,11 +97,12 @@ class QiRobot(Robot):
     ):
         super().__init__(name)
 
+        self.session = qi.Session()
+
         if not ping(ip):
             logger.warning(f"Destination host unreachable '{ip}'")
             return
 
-        self.session = qi.Session()
         self.session.connect(f"tcp://{ip}:{port}")
 
         if not self.robot_is_connected():
@@ -175,6 +176,10 @@ class QiRobot(Robot):
         logger.info("Disabling face tracker")
         self.face_detection_service.pause(1)
         self.face_detection_service.enableTracking(False)
+
+    def set_with_animation(self, with_animation):
+        logger.info(f"With animation{with_animation}")
+        self.with_animation = with_animation
 
     def say(self, text):
         logger.info(f"Text to say '{text}'")
