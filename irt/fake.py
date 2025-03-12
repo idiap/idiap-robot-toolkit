@@ -34,7 +34,9 @@ class FakeRobot(Robot):
         self.frame = None
         self.last_time_grabbed = 0
         self.last_time_read = -1
-        self._start()
+
+        if self.camera.isOpened():
+            self._start()
 
     def stop(self):
         if self.running:
