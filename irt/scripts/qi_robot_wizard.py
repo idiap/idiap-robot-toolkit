@@ -18,6 +18,11 @@ from qtpy import QtWidgets
 import irt
 
 
+def get_app_path_on_robot(name):
+    path = "/home/nao/.local/share/PackageManager/apps/{name}/"
+    return path
+
+
 class RobotRunnable(QtCore.QRunnable):
     """Interface to call all functions from the robot in a separate thread"""
 
@@ -41,13 +46,20 @@ class RobotRunnable(QtCore.QRunnable):
 class QiInterface(QtWidgets.QWidget):
     """The Wizard of Oz"""
 
-    def __init__(self, robot, nb_columns=5, default_language="English"):
+    def __init__(
+        self,
+        robot,
+        name="wizard",
+        nb_columns=5,
+        default_language="English",
+    ):
         super().__init__()
 
         QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+W"), self, self.close)
         QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self, self.close)
 
         self.robot = robot
+        self.name = name
         self.default_language = default_language
         # To display groups
         self.col_id = 0
