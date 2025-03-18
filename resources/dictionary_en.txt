@@ -1,0 +1,2 @@
+Idiap = e-diap
+Martigny = Martini
