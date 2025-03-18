@@ -200,7 +200,7 @@ class QiInterface(QtWidgets.QWidget):
 
 def main():
     parser = argparse.ArgumentParser()
-    irt.robot.add_parser_options(parser)
+    irt.robot.add_parser_options(parser, default_robot="pepper")
     args = parser.parse_args()
 
     robot = irt.robot.build_robot_from_args(args)
