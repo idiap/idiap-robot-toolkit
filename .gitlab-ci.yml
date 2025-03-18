@@ -36,6 +36,7 @@ irt_version:
     - linux
     - docker
   script:
+    - pip uninstall irt
     - pip install -e .
     - python3 -c "import irt ; print(irt.__version__)"
 
@@ -47,5 +48,6 @@ test_robot:
     - linux
     - docker
   script:
+    - pip uninstall irt
     - pip install -e .
     - python3 tests/test_robot.py
