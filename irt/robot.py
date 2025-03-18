@@ -57,7 +57,9 @@ class RobotFactory:
 factory = RobotFactory()
 
 
-def add_parser_options(parser, default_robot="fake"):
+def add_parser_options(
+    parser, default_robot="fake", default_tts_speed=100, default_tts_pitch=100
+):
     """Add command line options for robots"""
     # fmt: off
     g = parser.add_argument_group("robot", "Options for robots")
@@ -87,11 +89,11 @@ def add_parser_options(parser, default_robot="fake"):
         help="Language for text to speech"
     )
     g.add_argument(
-        "--tts-speed", type=int, default=100,
+        "--tts-speed", type=int, default=default_tts_speed,
         help="Speed for text to speech synthesis"
     )
     g.add_argument(
-        "--tts-pitch", type=int, default=100,
+        "--tts-pitch", type=int, default=default_tts_pitch,
         help="Pitch for text to speech synthesis"
     )
     g.add_argument(
