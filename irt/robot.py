@@ -57,12 +57,12 @@ class RobotFactory:
 factory = RobotFactory()
 
 
-def add_parser_options(parser):
+def add_parser_options(parser, default_robot="fake"):
     """Add command line options for robots"""
     # fmt: off
     g = parser.add_argument_group("robot", "Options for robots")
     g.add_argument(
-        "--robot", type=str, default="fake",
+        "--robot", type=str, default=default_robot,
         choices=factory.available(),
         help="Name of the robot to use"
     )
