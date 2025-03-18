@@ -10,6 +10,8 @@ import enum
 import os
 import time
 
+from pathlib import Path
+
 import numpy as np
 import qi
 
@@ -92,6 +94,7 @@ class QiRobot(Robot):
         language=DEFAULT_LANGUAGE,
         tts_speed=DEFAULT_TTS_SPEED,
         tts_pitch=DEFAULT_TTS_PITCH,
+        tts_dictionary=None,
         with_animation=False,
         with_breathing=False,
     ):
@@ -117,6 +120,9 @@ class QiRobot(Robot):
         self.with_animation = with_animation
         self.tts_service = self.session.service("ALTextToSpeech")
         self.animated_speech_service = self.session.service("ALAnimatedSpeech")
+        if tts_dictionary is not None:
+            self.add_to_dictionary(tts_dictionary)
+
         # Cameras
         self.video_device_service = self.session.service("ALVideoDevice")
         self.release()
@@ -182,6 +188,19 @@ class QiRobot(Robot):
     def set_with_animation(self, with_animation):
         logger.info(f"With animation{with_animation}")
         self.with_animation = with_animation
+
+    def add_to_dictionary(self, dictionary):
+        """Add the pronounciation of input words"""
+        d = []
+        if Path(dictionary).is_file():
+            with open(dictionary) as f:
+                for line in f:
+                    tok = line.strip().split("=")
+                    d.append((tok[0].strip(), tok[1].strip()))
+
+        for word1, word2 in d:
+            self.tts_service.addToDictionary(word1, word2)
+
 
     def say(self, text):
         logger.info(f"Text to say '{text}'")
@@ -267,6 +286,7 @@ class QiRobot(Robot):
             languages = self.tts_service.getAvailableLanguages()
         return languages
 
+
 class Pepper(QiRobot):
     """Class to control Pepper robot"""
 
@@ -282,6 +302,7 @@ class Pepper(QiRobot):
         language=DEFAULT_LANGUAGE,
         tts_speed=DEFAULT_TTS_SPEED,
         tts_pitch=DEFAULT_TTS_PITCH,
+        tts_dictionary=None,
         with_animation=False,
         with_breathing=False,
     ):
@@ -296,6 +317,7 @@ class Pepper(QiRobot):
             language=language,
             tts_speed=tts_speed,
             tts_pitch=tts_pitch,
+            tts_dictionary=tts_dictionary,
             with_animation=with_animation,
             with_breathing=with_breathing,
         )
@@ -316,6 +338,7 @@ def pepper_builder(
     language=DEFAULT_LANGUAGE,
     tts_speed=DEFAULT_TTS_SPEED,
     tts_pitch=DEFAULT_TTS_PITCH,
+    tts_dictionary=None,
     with_animation=False,
     with_breathing=False,
     **_ignored,
@@ -331,6 +354,7 @@ def pepper_builder(
         language=language,
         tts_speed=tts_speed,
         tts_pitch=tts_pitch,
+        tts_dictionary=tts_dictionary,
         with_animation=with_animation,
         with_breathing=with_breathing,
     )
