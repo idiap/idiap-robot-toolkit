@@ -155,7 +155,9 @@ class QiRobot(Robot):
         self.disable_face_traker()  # Fix bug in 2.5.5.5
 
         self.set_breathing(with_breathing)
+        logger.info(f"Setting speed parameter to {tts_speed}")
         self.tts_service.setParameter("speed", tts_speed)
+        logger.info(f"Setting pitch parameter to {tts_pitch}")
         self.tts_service.setParameter("pitch", tts_pitch)
 
     def stop(self):
