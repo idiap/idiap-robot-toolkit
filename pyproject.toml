@@ -27,5 +27,8 @@ dynamic = ["dependencies"]
 [project.scripts]
 qi_robot_wizard = "irt.scripts.qi_robot_wizard:main"
 
+[tool.setuptools]
+py-modules = []
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
