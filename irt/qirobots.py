@@ -124,7 +124,13 @@ class QiRobot(Robot):
         self.animated_speech_service = self.session.service("ALAnimatedSpeech")
         if tts_dictionary is not None:
             self.add_to_dictionary(tts_dictionary)
+
         self.voice_style = voice_style
+        self.tts_speed = tts_speed
+        self.tts_pitch = tts_pitch
+
+        self.set_tts_speed(self.tts_speed)
+        self.set_tts_pitch(self.tts_pitch)
 
         # Cameras
         self.video_device_service = self.session.service("ALVideoDevice")
@@ -164,10 +170,6 @@ class QiRobot(Robot):
         self.disable_face_traker()  # Fix bug in 2.5.5.5
 
         self.set_breathing(with_breathing)
-        logger.info(f"Setting speed parameter to {tts_speed}")
-        self.tts_service.setParameter("speed", tts_speed)
-        logger.info(f"Setting pitch parameter to {tts_pitch}")
-        self.tts_service.setParameter("pitch", tts_pitch)
 
     def stop(self):
         pass
@@ -211,6 +213,18 @@ class QiRobot(Robot):
             style = VOICE_STYLES[0]
         self.voice_style = style
 
+    def set_tts_speed(self, speed):
+        """Set the speech speed"""
+        logger.info(f"Setting speed parameter to {speed}")
+        self.tts_speed = speed
+        self.tts_service.setParameter("speed", speed)
+
+    def set_tts_pitch(self, pitch):
+        """Set the pitch"""
+        logger.info(f"Setting pitch parameter to {pitch}")
+        self.tts_pitch = pitch
+        self.tts_service.setParameter("pitch", pitch)
+
     def say(self, text):
         logger.info(f"Text to say '{text}'")
 
@@ -218,7 +232,11 @@ class QiRobot(Robot):
             return
 
         text = preprocess_speech(text, SPEECH_PREPROCESSING)
-        text = f"\\style={self.voice_style}\\ {text}"
+
+        text = f"\\rspd={self.tts_speed}\\ {text}"
+        text = f"\\vct={self.tts_pitch}\\ {text}"
+        if self.voice_style is not None:
+            text = f"\\style={self.voice_style}\\ {text}"
 
         logger.info(f"Pre-processed text '{text}'")
 
