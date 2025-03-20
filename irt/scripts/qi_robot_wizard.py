@@ -137,21 +137,31 @@ class QiInterface(QtWidgets.QWidget):
         available_languages = self.robot.get_available_languages()
 
         # Add combo box to select language
-        combo = QtWidgets.QComboBox()
+        language_combo = QtWidgets.QComboBox()
         for l in available_languages:
             logger.info("Adding language {}".format(l))
-            combo.addItem(l)
+            language_combo.addItem(l)
 
         if self.default_language in available_languages:
             logger.info("Default language is {}".format(self.default_language))
-            combo.setCurrentIndex(available_languages.index(self.default_language))
+            language_combo.setCurrentIndex(available_languages.index(self.default_language))
 
-        combo.activated.connect(
-            lambda: self.robot.set_language(str(combo.currentText()))
+        language_combo.activated.connect(
+            lambda: self.robot.set_language(str(language_combo.currentText()))
         )
-        self.robot.set_language(str(combo.currentText()))
-        logger.info("Language set to {}".format(combo.currentText()))
-        layout.addWidget(combo)
+        self.robot.set_language(str(language_combo.currentText()))
+        logger.info(f"Language set to {language_combo.currentText()}")
+        layout.addWidget(language_combo)
+
+        voice_style_combo = QtWidgets.QComboBox()
+        for style in irt.qirobots.VOICE_STYLES:
+            logger.info(f"Adding language {style}")
+            voice_style_combo.addItem(style)
+        voice_style_combo.activated.connect(
+            lambda: self.robot.set_voice_style(str(voice_style_combo.currentText()))
+        )
+        layout.addWidget(voice_style_combo)
+
 
         # Text area
         edit = QtWidgets.QLineEdit("Pepper")
