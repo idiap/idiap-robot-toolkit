@@ -162,6 +162,23 @@ class QiInterface(QtWidgets.QWidget):
         )
         layout.addWidget(voice_style_combo)
 
+        layout.addWidget(QtWidgets.QLabel("Speed"))
+        speed_combo = QtWidgets.QComboBox(self)
+        speed_list = list(range(50, 400, 10))
+        for speed in speed_list:
+            speed_combo.addItem(str(speed))
+        speed_combo.setCurrentIndex(speed_list.index(100))
+        speed_combo.activated.connect(lambda: self.robot.set_tts_speed(int(speed_combo.currentText())))
+        layout.addWidget(speed_combo)
+
+        layout.addWidget(QtWidgets.QLabel("Pitch"))
+        pitch_combo = QtWidgets.QComboBox(self)
+        pitch_list = list(range(50, 210, 10))
+        for pitch in pitch_list:
+            pitch_combo.addItem(str(pitch))
+        pitch_combo.setCurrentIndex(pitch_list.index(100))
+        pitch_combo.activated.connect(lambda: self.robot.set_tts_pitch(int(pitch_combo.currentText())))
+        layout.addWidget(pitch_combo)
 
         # Text area
         edit = QtWidgets.QLineEdit("Pepper")
