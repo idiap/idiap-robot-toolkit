@@ -32,6 +32,7 @@ DEFAULT_RESOLUTION = "vga"
 DEFAULT_LANGUAGE = "English"
 DEFAULT_TTS_SPEED = 100
 DEFAULT_TTS_PITCH = 100
+VOICE_STYLES = ("neutral", "joyful", "didactic")
 
 
 class CameraIndex(enum.IntEnum):
@@ -95,6 +96,7 @@ class QiRobot(Robot):
         tts_speed=DEFAULT_TTS_SPEED,
         tts_pitch=DEFAULT_TTS_PITCH,
         tts_dictionary=None,
+        voice_style=VOICE_STYLES[0],
         with_animation=False,
         with_breathing=False,
     ):
@@ -122,6 +124,7 @@ class QiRobot(Robot):
         self.animated_speech_service = self.session.service("ALAnimatedSpeech")
         if tts_dictionary is not None:
             self.add_to_dictionary(tts_dictionary)
+        self.voice_style = voice_style
 
         # Cameras
         self.video_device_service = self.session.service("ALVideoDevice")
@@ -201,6 +204,12 @@ class QiRobot(Robot):
         for word1, word2 in d:
             self.tts_service.addToDictionary(word1, word2)
 
+    def set_voice_style(self, style):
+        """Set the voice style"""
+        if style not in VOICE_STYLES:
+            logger.error(f"Unknown style '{style}'. Shold be one of {VOICE_STYLES}")
+            style = VOICE_STYLES[0]
+        self.voice_style = style
 
     def say(self, text):
         logger.info(f"Text to say '{text}'")
@@ -209,6 +218,7 @@ class QiRobot(Robot):
             return
 
         text = preprocess_speech(text, SPEECH_PREPROCESSING)
+        text = f"\\style={self.voice_style}\\ {text}"
 
         logger.info(f"Pre-processed text '{text}'")
 
