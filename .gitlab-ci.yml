@@ -50,4 +50,5 @@ test_robot:
   script:
     - pip uninstall irt
     - pip install -e .
+    - python3 -c "import irt ; print(irt.__version__)"
     - python3 tests/test_robot.py
