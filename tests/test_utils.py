@@ -43,5 +43,12 @@ class TestFPS(unittest.TestCase):
         self.assertTrue(math.isclose(fps(), expected, abs_tol=0.3))
 
 
+class TestPing(unittest.TestCase):
+    def test_localhost(self):
+        """Test pinging localhost"""
+        result = irt.utils.ping("127.0.0.1")
+        self.assertTrue(result)
+
+
 if __name__ == "__main__":
     unittest.main()
