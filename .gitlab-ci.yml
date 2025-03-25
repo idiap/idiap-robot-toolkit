@@ -40,15 +40,26 @@ irt_version:
     - pip install -e .
     - python3 -c "import irt ; print(irt.__version__)"
 
-# test_robot:
-#   stage: test
-#   image:
-#     name: $CI_REGISTRY_IMAGE
-#   tags:
-#     - linux
-#     - docker
-#   script:
-#     - pip uninstall irt
-#     - pip install -e .
-#     - python3 -c "import irt ; print(irt.__version__)"
-#     - python3 tests/test_robot.py
+test_robot:
+  stage: test
+  image:
+    name: $CI_REGISTRY_IMAGE
+  tags:
+    - linux
+    - docker
+  script:
+    - pip uninstall irt
+    - pip install -e .
+    - python3 tests/test_robot.py
+
+test_fake:
+  stage: test
+  image:
+    name: $CI_REGISTRY_IMAGE
+  tags:
+    - linux
+    - docker
+  script:
+    - pip uninstall irt
+    - pip install -e .
+    - python3 tests/test_fake.py
