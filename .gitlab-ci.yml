@@ -62,7 +62,7 @@ test_robot:
   script:
     - pip uninstall irt
     - pip install -e .
-    - python3 tests/test_robot.py
+    - python3 -m unittest tests/test_robot.py -v
 
 test_fake:
   stage: test
@@ -74,4 +74,4 @@ test_fake:
   script:
     - pip uninstall irt
     - pip install -e .
-    - python3 tests/test_fake.py
+    - python3 -m unittest tests/test_fake.py -v
