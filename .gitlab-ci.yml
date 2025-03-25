@@ -40,7 +40,7 @@ irt_version:
     - pip install -e .
     - python3 -c "import irt ; print(irt.__version__)"
 
-test_robot:
+test_utils:
   stage: test
   image:
     name: $CI_REGISTRY_IMAGE
