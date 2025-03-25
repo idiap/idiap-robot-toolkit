@@ -50,6 +50,18 @@ test_robot:
   script:
     - pip uninstall irt
     - pip install -e .
+    - python3 -m unittest tests/test_utils.py -v
+
+test_robot:
+  stage: test
+  image:
+    name: $CI_REGISTRY_IMAGE
+  tags:
+    - linux
+    - docker
+  script:
+    - pip uninstall irt
+    - pip install -e .
     - python3 tests/test_robot.py
 
 test_fake:
