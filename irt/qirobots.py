@@ -361,7 +361,6 @@ class Pepper(QiRobot):
             with_animation=with_animation,
             with_breathing=with_breathing,
         )
-
         # Tablet service
         self.tablet_service = self.session.service("ALTabletService")
 
@@ -372,12 +371,15 @@ class Pepper(QiRobot):
         run_command_on_host(
             NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
         )
+
+        if image_paths is None:
+            image_paths = []
+
         for path in image_paths:
             tok = path.split(":")
             msg = f"Expect input of the form alias:/path/to/image.png not {path}"
             assert len(tok) == 2, msg
             alias, image_path = tok
-            print(tok)
             if Path(image_path).is_file():
                 filename = Path(image_path).name
                 path_on_robot = f"{directory_on_robot}/{filename}"
@@ -386,8 +388,8 @@ class Pepper(QiRobot):
                 )
                 path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
                 self.image_paths[alias] = path_on_usb_server
-
-        print(self.image_paths)
+            else:
+                logger.error(f"Image {image_path} not found. Skipping.")
 
     def __repr__(self):
         s = "Pepper robot"
@@ -399,12 +401,14 @@ class Pepper(QiRobot):
             return
 
         if image_alias not in self.image_paths:
-            logger.error(f"Image {image_alias} not present")
+            logger.error(f"Image {image_alias} not present. Skipping.")
 
         # The first time, it does not work
-        for i in range(2):
-            self.tablet_service.showImageNoCache(self.image_paths[image_alias])
-            time.sleep(0.1)
+        # for i in range(2):
+        #     self.tablet_service.showImageNoCache(self.image_paths[image_alias])
+        #     time.sleep(0.1)
+        self.tablet_service.showImage(self.image_paths[image_alias])
+        # self.tablet_service.showImageNoCache(self.image_paths[image_alias])
 
 
 def pepper_builder(
