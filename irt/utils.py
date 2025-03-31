@@ -83,3 +83,19 @@ def run_command_on_host(username, host, cmd):
     cmd = ["ssh", f"{username}@{host}"] + cmd
     result = subprocess.run(cmd)
     return result
+
+
+def copy_file_on_host(username, host, filename, path_on_host):
+    """Call scp to copy local file `filename` on the host
+
+    Args:
+
+      username (str): The username to ssh
+      host (str): The IP or alias to ssh (username@host)
+      filename (str): Local file
+      path_on_host (str): Target file or directory on the host
+
+    """
+    cmd = ["scp", filename, f"{username}@{host}:{path_on_host}"]
+    result = subprocess.run(cmd)
+    return result
