@@ -19,7 +19,9 @@ from loguru import logger
 
 from .robot import factory
 from .robot import Robot
+from .utils import copy_file_on_host
 from .utils import ping
+from .utils import run_command_on_host
 
 __all__ = ["Pepper"]
 
@@ -33,6 +35,12 @@ DEFAULT_LANGUAGE = "English"
 DEFAULT_TTS_SPEED = 100
 DEFAULT_TTS_PITCH = 100
 VOICE_STYLES = ("neutral", "joyful", "didactic")
+
+NAO = "nao"  # Linux username
+USB_SERVER = "http://198.18.0.1/apps"
+TABLET_HEIGHT = 800
+TABLET_WIDTH = 1280
+PEPPER_APP_PREFIX = f"/home/nao/.local/share/PackageManager/apps"
 
 
 class CameraIndex(enum.IntEnum):
@@ -85,7 +93,7 @@ def resolution_to_index(resolution):
 class QiRobot(Robot):
     def __init__(
         self,
-        name="robot",
+        name="qirobot",
         ip=DEFAULT_IP,
         port=DEFAULT_PORT,
         top_resolution=None,
@@ -101,6 +109,9 @@ class QiRobot(Robot):
         with_breathing=False,
     ):
         super().__init__(name)
+
+        self.ip = ip
+        self.port = port
 
         self.session = qi.Session()
 
@@ -333,6 +344,7 @@ class Pepper(QiRobot):
         tts_dictionary=None,
         with_animation=False,
         with_breathing=False,
+        image_paths=None,
     ):
         super().__init__(
             name,
@@ -350,13 +362,53 @@ class Pepper(QiRobot):
             with_breathing=with_breathing,
         )
 
+        # Tablet service
+        self.tablet_service = self.session.service("ALTabletService")
+
+        dry_run = False
+        self.image_paths = {}
+
+        directory_on_robot = f"{PEPPER_APP_PREFIX}/{self.name}/html"
+        run_command_on_host(
+            NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
+        )
+        for path in image_paths:
+            tok = path.split(":")
+            msg = f"Expect input of the form alias:/path/to/image.png not {path}"
+            assert len(tok) == 2, msg
+            alias, image_path = tok
+            print(tok)
+            if Path(image_path).is_file():
+                filename = Path(image_path).name
+                path_on_robot = f"{directory_on_robot}/{filename}"
+                copy_file_on_host(
+                    NAO, self.ip, image_path, path_on_robot, dry_run=dry_run
+                )
+                path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
+                self.image_paths[alias] = path_on_usb_server
+
+        print(self.image_paths)
+
     def __repr__(self):
         s = "Pepper robot"
         return s
 
+    def show_image(self, image_alias):
+        """Show the image on the tablet"""
+        if not self.robot_is_connected():
+            return
+
+        if image_alias not in self.image_paths:
+            logger.error(f"Image {image_alias} not present")
+
+        # The first time, it does not work
+        for i in range(2):
+            self.tablet_service.showImageNoCache(self.image_paths[image_alias])
+            time.sleep(0.1)
+
 
 def pepper_builder(
-    name="Pepper",
+    name="pepper",
     ip=DEFAULT_IP,
     port=DEFAULT_PORT,
     top_resolution=None,
@@ -369,6 +421,7 @@ def pepper_builder(
     tts_dictionary=None,
     with_animation=False,
     with_breathing=False,
+    image_paths=None,
     **_ignored,
 ):
     return Pepper(
@@ -385,6 +438,7 @@ def pepper_builder(
         tts_dictionary=tts_dictionary,
         with_animation=with_animation,
         with_breathing=with_breathing,
+        image_paths=image_paths,
     )
 
 
