@@ -67,7 +67,7 @@ def ping(server, port=22, timeout=3):
         return True
 
 
-def run_command_on_host(username, host, cmd):
+def run_command_on_host(username, host, cmd, dry_run=False):
     """Run the command on the host
 
     Args:
@@ -81,11 +81,15 @@ def run_command_on_host(username, host, cmd):
         cmd = [cmd]
 
     cmd = ["ssh", f"{username}@{host}"] + cmd
-    result = subprocess.run(cmd)
+    if dry_run:
+        print(cmd)
+        result = 0
+    else:
+        result = subprocess.run(cmd)
     return result
 
 
-def copy_file_on_host(username, host, filename, path_on_host):
+def copy_file_on_host(username, host, filename, path_on_host, dry_run=False):
     """Call scp to copy local file `filename` on the host
 
     Args:
@@ -97,5 +101,9 @@ def copy_file_on_host(username, host, filename, path_on_host):
 
     """
     cmd = ["scp", filename, f"{username}@{host}:{path_on_host}"]
-    result = subprocess.run(cmd)
+    if dry_run:
+        print(cmd)
+        result = 0
+    else:
+        result = subprocess.run(cmd)
     return result
