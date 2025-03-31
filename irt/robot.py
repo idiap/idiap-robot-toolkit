@@ -128,7 +128,7 @@ def build_robot_from_args(args):
         "tts_dictionary": args.tts_dictionary,
         "with_animation": args.with_animation,
         "with_breathing": args.with_breathing,
-        "tablet_images": args.tablet_images,
+        "image_paths": args.tablet_images,
     }
     robot = factory.create(**kwargs)
     return robot
