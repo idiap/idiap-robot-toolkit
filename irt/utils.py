@@ -65,3 +65,21 @@ def ping(server, port=22, timeout=3):
     else:
         s.close()
         return True
+
+
+def run_command_on_host(username, host, cmd):
+    """Run the command on the host
+
+    Args:
+
+      username (str): The username to ssh
+      host (str): The IP or alias to ssh (username@host)
+      cmd (str | list[str]): The command to run on the host
+
+    """
+    if isinstance(cmd, str):
+        cmd = [cmd]
+
+    cmd = ["ssh", f"{username}@{host}"] + cmd
+    result = subprocess.run(cmd)
+    return result
