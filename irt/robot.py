@@ -108,6 +108,10 @@ def add_parser_options(
         "--with-breathing", action="store_true",
         help="Whether to use breathing"
     )
+    g.add_argument(
+        "--tablet-images", type=str,  nargs="+",
+        help="Paths to images to be shown on the tablet, list of alias:/path/to/image.png"
+    )
     # fmt: on
 
 
@@ -124,6 +128,7 @@ def build_robot_from_args(args):
         "tts_dictionary": args.tts_dictionary,
         "with_animation": args.with_animation,
         "with_breathing": args.with_breathing,
+        "tablet_images": args.tablet_images,
     }
     robot = factory.create(**kwargs)
     return robot
