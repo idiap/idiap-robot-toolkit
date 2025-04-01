@@ -367,13 +367,14 @@ class Pepper(QiRobot):
         dry_run = False
         self.image_paths = {}
 
-        directory_on_robot = f"{PEPPER_APP_PREFIX}/{self.name}/html"
-        run_command_on_host(
-            NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
-        )
-
         if image_paths is None:
             image_paths = []
+
+        if len(image_paths) > 0:
+            directory_on_robot = f"{PEPPER_APP_PREFIX}/{self.name}/html"
+            run_command_on_host(
+                NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
+            )
 
         for path in image_paths:
             tok = path.split(":")
