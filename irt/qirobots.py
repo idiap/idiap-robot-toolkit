@@ -400,7 +400,7 @@ class Pepper(QiRobot):
                 path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
                 self.image_paths[alias] = path_on_usb_server
             else:
-                logger.error(f"Image {image_path} not found. Skipping.")
+                logger.error(f"Image `{image_path}` not found. Skipping.")
 
     def __repr__(self):
         s = "Pepper robot"
@@ -412,7 +412,7 @@ class Pepper(QiRobot):
             return
 
         if image_alias not in self.image_paths:
-            logger.error(f"Image {image_alias} not present. Skipping.")
+            logger.error(f"Image '{image_alias}' not present. Skipping.")
 
         # The first time, it does not work
         # for i in range(2):
