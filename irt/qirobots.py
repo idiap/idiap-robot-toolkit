@@ -34,6 +34,7 @@ DEFAULT_RESOLUTION = "vga"
 DEFAULT_LANGUAGE = "English"
 DEFAULT_TTS_SPEED = 100
 DEFAULT_TTS_PITCH = 100
+DEFAULT_TTS_PITCH_SHIFT = 1.1
 VOICE_STYLES = ("neutral", "joyful", "didactic")
 
 NAO = "nao"  # Linux username
@@ -103,6 +104,7 @@ class QiRobot(Robot):
         language=DEFAULT_LANGUAGE,
         tts_speed=DEFAULT_TTS_SPEED,
         tts_pitch=DEFAULT_TTS_PITCH,
+        tts_pitch_shift=DEFAULT_TTS_PITCH_SHIFT,
         tts_dictionary=None,
         voice_style=VOICE_STYLES[0],
         with_animation=False,
@@ -139,9 +141,11 @@ class QiRobot(Robot):
         self.voice_style = voice_style
         self.tts_speed = tts_speed
         self.tts_pitch = tts_pitch
+        self.tts_pitch_shift = tts_pitch_shift
 
         self.set_tts_speed(self.tts_speed)
         self.set_tts_pitch(self.tts_pitch)
+        self.set_tts_pitch_shift(self.tts_pitch_shift)
 
         # Cameras
         self.video_device_service = self.session.service("ALVideoDevice")
@@ -235,6 +239,12 @@ class QiRobot(Robot):
         logger.info(f"Setting pitch parameter to {pitch}")
         self.tts_pitch = pitch
         self.tts_service.setParameter("pitch", pitch)
+
+    def set_tts_pitch_shift(self, pitch_shift):
+        """Set the pitch shift"""
+        logger.info(f"Setting pitch shift parameter to {pitch_shift}")
+        self.tts_pitch_shift = pitch_shift
+        self.tts_service.setParameter("pitchShift", pitch_shift)
 
     def say(self, text):
         logger.info(f"Text to say '{text}'")
