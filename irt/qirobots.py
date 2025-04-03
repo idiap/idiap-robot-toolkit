@@ -391,20 +391,30 @@ class Pepper(QiRobot):
             msg = f"Expect input of the form alias:/path/to/image.png not {path}"
             assert len(tok) == 2, msg
             alias, image_path = tok
-            if Path(image_path).is_file():
-                filename = Path(image_path).name
-                path_on_robot = f"{directory_on_robot}/{filename}"
-                copy_file_on_host(
-                    NAO, self.ip, image_path, path_on_robot, dry_run=dry_run
-                )
-                path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
-                self.image_paths[alias] = path_on_usb_server
-            else:
-                logger.error(f"Image `{image_path}` not found. Skipping.")
+            self.add_image(alias, image_path)
 
     def __repr__(self):
         s = "Pepper robot"
         return s
+
+    def add_image(self, key, path):
+        """Add an image to be shown on the tablet and sneds it to the robot"""
+
+        if not Path(path).is_file():
+            logger.error(f"Image `{path}` not found on the disk.")
+
+        dry_run = False
+        directory_on_robot = f"{PEPPER_APP_PREFIX}/{self.name}/html"
+        cmd = f"mkdir -p {directory_on_robot}"
+        run_command_on_host(NAO, self.ip, cmd, dry_run=dry_run)
+
+        filename = Path(path).name
+        path_on_robot = f"{directory_on_robot}/{filename}"
+        copy_file_on_host(NAO, self.ip, path, path_on_robot, dry_run=dry_run)
+
+        path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
+        self.image_paths[key] = path_on_usb_server
+        logger.info(f"Adding image `{path}` with key '{key}'.")
 
     def show_image(self, image_alias):
         """Show the image on the tablet"""
