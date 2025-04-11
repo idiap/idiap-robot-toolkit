@@ -14,6 +14,7 @@ import irt
 class TestPepper(unittest.TestCase):
     def test_init(self):
         robot = irt.Pepper("pepper")
+        self.assertTrue(isinstance(robot, irt.Pepper))
 
 
 if __name__ == "__main__":
