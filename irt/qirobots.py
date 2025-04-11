@@ -41,7 +41,7 @@ NAO = "nao"  # Linux username
 USB_SERVER = "http://198.18.0.1/apps"
 TABLET_HEIGHT = 800
 TABLET_WIDTH = 1280
-PEPPER_APP_PREFIX = f"/home/nao/.local/share/PackageManager/apps"
+PEPPER_APP_PREFIX = "/home/nao/.local/share/PackageManager/apps"
 
 
 class CameraIndex(enum.IntEnum):
