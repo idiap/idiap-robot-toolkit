@@ -7,9 +7,7 @@
 # This file is part of the irt package
 
 import argparse
-import time
 
-import cv2
 
 from loguru import logger
 
