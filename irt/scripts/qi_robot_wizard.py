@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding=utf-8
 
 # SPDX-FileCopyrightText: Copyright 2025 Idiap Research Institute <contact@idiap.ch>
@@ -138,13 +137,15 @@ class QiInterface(QtWidgets.QWidget):
 
         # Add combo box to select language
         language_combo = QtWidgets.QComboBox()
-        for l in available_languages:
-            logger.info("Adding language {}".format(l))
-            language_combo.addItem(l)
+        for language in available_languages:
+            logger.info(f"Adding language {language}")
+            language_combo.addItem(language)
 
         if self.default_language in available_languages:
             logger.info("Default language is {}".format(self.default_language))
-            language_combo.setCurrentIndex(available_languages.index(self.default_language))
+            language_combo.setCurrentIndex(
+                available_languages.index(self.default_language)
+            )
 
         language_combo.activated.connect(
             lambda: self.robot.set_language(str(language_combo.currentText()))
@@ -168,7 +169,9 @@ class QiInterface(QtWidgets.QWidget):
         for speed in speed_list:
             speed_combo.addItem(str(speed))
         speed_combo.setCurrentIndex(speed_list.index(100))
-        speed_combo.activated.connect(lambda: self.robot.set_tts_speed(int(speed_combo.currentText())))
+        speed_combo.activated.connect(
+            lambda: self.robot.set_tts_speed(int(speed_combo.currentText()))
+        )
         layout.addWidget(speed_combo)
 
         layout.addWidget(QtWidgets.QLabel("Pitch"))
@@ -177,7 +180,9 @@ class QiInterface(QtWidgets.QWidget):
         for pitch in pitch_list:
             pitch_combo.addItem(str(pitch))
         pitch_combo.setCurrentIndex(pitch_list.index(100))
-        pitch_combo.activated.connect(lambda: self.robot.set_tts_pitch(int(pitch_combo.currentText())))
+        pitch_combo.activated.connect(
+            lambda: self.robot.set_tts_pitch(int(pitch_combo.currentText()))
+        )
         layout.addWidget(pitch_combo)
 
         # Text area

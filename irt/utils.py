@@ -7,9 +7,7 @@
 # This file is part of the irt package
 
 import collections
-import platform
 import socket
-import subprocess
 import time
 
 
@@ -60,7 +58,7 @@ def ping(server, port=22, timeout=3):
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((server, port))
-    except OSError as error:
+    except OSError:
         return False
     else:
         s.close()
