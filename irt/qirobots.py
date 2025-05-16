@@ -138,6 +138,9 @@ class QiRobot(Robot):
         if tts_dictionary is not None:
             self.add_to_dictionary(tts_dictionary)
 
+
+        self.set_language(language)
+
         self.voice_style = voice_style
         self.tts_speed = tts_speed
         self.tts_pitch = tts_pitch
