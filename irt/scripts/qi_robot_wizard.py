@@ -189,10 +189,8 @@ class QiInterface(QtWidgets.QWidget):
         edit = QtWidgets.QLineEdit("Pepper")
         edit.returnPressed.connect(
             lambda: [
-                self.execute(
-                    ("animated_speech" if self.anim_checkbox.isChecked() else "say"),
-                    edit.text(),
-                ),
+                self.execute("set_with_animation", self.anim_checkbox.isChecked()),
+                self.execute("say", edit.text()),
                 # edit.text().encode("utf-8")),
                 edit.setText(""),
             ]
