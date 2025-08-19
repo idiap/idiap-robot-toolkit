@@ -249,7 +249,7 @@ class QiRobot(Robot):
         self.tts_pitch_shift = pitch_shift
         self.tts_service.setParameter("pitchShift", pitch_shift)
 
-    def say(self, text):
+    def say(self, text, filename=None):
         logger.info(f"Text to say '{text}'")
 
         if not self.robot_is_connected():
@@ -264,14 +264,17 @@ class QiRobot(Robot):
 
         logger.info(f"Pre-processed text '{text}'")
 
-        if self.with_animation:
-            configuration = {"bodyLanguageMode": "contextual"}
-            self.wake_up()
-            self.animated_speech_service.say(text, configuration)
-            self.posture_service.goToPosture("StandInit", 0.4)
-
+        if filename is not None:
+            self.tts_service.sayToFile(text, str(filename))
         else:
-            self.tts_service.say(text)
+            if self.with_animation:
+                configuration = {"bodyLanguageMode": "contextual"}
+                self.wake_up()
+                self.animated_speech_service.say(text, configuration)
+                self.posture_service.goToPosture("StandInit", 0.4)
+
+            else:
+                self.tts_service.say(text)
 
     def release(self):
         # print(self.video_device_service.getSubscribers())
