@@ -138,7 +138,6 @@ class QiRobot(Robot):
         if tts_dictionary is not None:
             self.add_to_dictionary(tts_dictionary)
 
-
         self.set_language(language)
 
         self.voice_style = voice_style
@@ -277,7 +276,6 @@ class QiRobot(Robot):
                 self.tts_service.say(text)
 
     def release(self):
-        # print(self.video_device_service.getSubscribers())
         for name in self.video_device_service.getSubscribers():
             if name.startswith(self.name):
                 logger.warning(f"Unregistering {name}")
