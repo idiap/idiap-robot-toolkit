@@ -33,6 +33,14 @@ class Robot:
         """Function to call as a replacement of __del__"""
         raise NotImplementedError
 
+    def get_available_languages(self):
+        """Return available languages when the robot can speak"""
+        return []
+
+    def set_language(self, language="English"):
+        """Set the language when the robot can speak"""
+        pass
+
 
 class RobotFactory:
     def __init__(self):
