@@ -7,9 +7,13 @@
 # This file is part of the irt package
 
 import collections
+import math
 import socket
 import subprocess
 import time
+
+TO_DEG = 180 / math.pi
+TO_RAD = math.pi / 180
 
 
 class FPS:
