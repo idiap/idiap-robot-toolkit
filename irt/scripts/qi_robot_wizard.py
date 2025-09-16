@@ -7,8 +7,10 @@
 # This file is part of the irt package
 
 import argparse
+import pathlib
 import sys
 
+import cv2
 from loguru import logger
 from qtpy import QtCore
 from qtpy import QtGui
@@ -20,6 +22,70 @@ import irt
 def get_app_path_on_robot(name):
     path = "/home/nao/.local/share/PackageManager/apps/{name}/"
     return path
+
+
+class HeadImageController(QtWidgets.QGraphicsView):
+    """Display an image and return position of mouth on image when image
+    is clicked
+
+    """
+
+    position = QtCore.Signal(tuple)
+
+    def __init__(self, robot, rate=1000, parent=None):
+        super().__init__(parent)
+
+        self.width = 320
+        self.height = 240
+        self.setFixedSize(self.width + 10, self.height + 10)
+
+        self.image = QtGui.QImage()
+        self.pixMapItem = QtWidgets.QGraphicsPixmapItem(
+            QtGui.QPixmap(self.image),
+            None,
+        )
+        self.pixMapItem.mousePressEvent = self.pixelSelect
+
+        self.setScene(QtWidgets.QGraphicsScene(self))
+        self.scene().addItem(self.pixMapItem)
+
+        self.robot = robot
+        self.cv2_image = None
+        self.startTimer(rate)
+
+    def pixelSelect(self, event):
+        height = self.cv2_image.shape[0]
+        width = self.cv2_image.shape[1]
+
+        x = float(event.pos().x()) - width / 2
+        y = float(event.pos().y()) - height / 2
+
+        self.position.emit((x, y))
+
+        # cam = self.robot.alvideo.getActiveCamera()
+        # hfov = self.robot.alvideo.getHorizontalFOV(cam)
+        # vfov = self.robot.alvideo.getVerticalFOV(cam)
+        # yaw_to_move = x / width * hfov
+        # pitch_to_move = y / height * vfov
+
+        # names = ["HeadYaw", "HeadPitch"]
+        # angles = [-yaw_to_move * utils.TO_DEG, pitch_to_move * utils.TO_DEG]
+        # speed = [1.0, 1.0]
+
+    def timerEvent(self, event):
+        """Called periodically. Retrieve a nao image, and update the widget."""
+
+        success, cv2_image = self.robot.get_frame()
+        cv2_image = cv2.resize(cv2_image, (self.width, self.height))
+        self.cv2_image = cv2_image
+        self.image = QtGui.QImage(
+            cv2_image.data,
+            cv2_image.shape[1],
+            cv2_image.shape[0],
+            QtGui.QImage.Format_RGB888,
+        )
+        self.pixMapItem.setPixmap(QtGui.QPixmap(self.image))
+        self.update()
 
 
 class RobotRunnable(QtCore.QRunnable):
@@ -35,9 +101,7 @@ class RobotRunnable(QtCore.QRunnable):
         self.kwargs = kwargs
 
     def run(self):
-        logger.debug(
-            "Call {} with args {} kwargs {}".format(self.func, self.args, self.kwargs)
-        )
+        logger.debug(f"Call {self.func} with args {self.args} kwargs {self.kwargs}")
         f = getattr(self.robot, self.func)
         f(*self.args, **self.kwargs)
 
@@ -151,7 +215,7 @@ class QiInterface(QtWidgets.QWidget):
             lambda: self.robot.set_language(str(language_combo.currentText()))
         )
         self.robot.set_language(str(language_combo.currentText()))
-        logger.info(f"Language set to {language_combo.currentText()}")
+        logger.info(f"Language set to '{language_combo.currentText()}'")
         layout.addWidget(language_combo)
 
         voice_style_combo = QtWidgets.QComboBox()
@@ -201,6 +265,65 @@ class QiInterface(QtWidgets.QWidget):
 
         return gpe
 
+    @QtCore.Slot(tuple)
+    def _turn_head(self, t):
+        print(f"t {t}")
+        self.execute("look_at", t)
+
+    def _create_video_head_commands_box(self):
+        gpe = QtWidgets.QGroupBox("Head", self)
+        layout = QtWidgets.QVBoxLayout()
+        lbl = "Click where you want the robot to look at"
+        layout.addWidget(QtWidgets.QLabel(lbl))
+        head_controller = HeadImageController(self.robot, 30)
+        head_controller.position.connect(self._turn_head)
+        layout.addWidget(head_controller)
+        gpe.setLayout(layout)
+        return gpe
+
+    def _show_image_btn(self, btn_name, image_alias):
+        """Button to show an image
+
+        Args:
+            btn_name: Name of the button
+            image_alias: Image identifier associated to the image path
+
+        """
+        btn = QtWidgets.QPushButton(btn_name, self)
+        image_path = path
+        btn.clicked.connect(lambda: self.execute("show_image", image_alias=image))
+        return btn
+
+    def _create_tablet_box(self):
+        """Return a group box with tablet actions"""
+
+        gpe = QtWidgets.QGroupBox("Tablet")
+        layout = QtWidgets.QVBoxLayout()
+
+        for image_alias in self.robot.image_paths:
+            btn = self._show_image_btn(name, image_alias)
+            layout.addWidget(btn)
+
+        # # Empty web page with <h1 id="content">
+        # empty_page = "{}/empty.html".format(USB_SERVER)
+        btn = QtWidgets.QPushButton("Empty web page", self)
+        # btn.clicked.connect(lambda: self.robot.load_url(empty_page))
+        layout.addWidget(btn)
+
+        edit = QtWidgets.QLineEdit("Print me on the tablet")
+        # edit.returnPressed.connect(
+        #     lambda: [
+        #         self.robot.load_url(empty_page),
+        #         time.sleep(0.5),
+        #         self.robot.update_content_url_page(str(edit.text()), "content"),
+        #     ]
+        # )
+        layout.addWidget(edit)
+
+        gpe.setLayout(layout)
+
+        return gpe
+
     def _create_gui(self):
         self.setWindowTitle("Qi robot Wizard of Oz")
         layout = QtWidgets.QGridLayout(self)
@@ -222,6 +345,16 @@ class QiInterface(QtWidgets.QWidget):
         self._new_row()
 
         layout.addWidget(self._create_general_box(), self.row_id, self.col_id)
+
+        self._increment_indices()
+
+        if hasattr(self.robot, "image_paths") and len(self.robot.image_paths) > 0:
+            layout.addWidget(self._create_tablet_box(), self.row_id, self.col_id)
+            self._increment_indices()
+
+        layout.addWidget(
+            self._create_video_head_commands_box(), self.row_id, self.col_id
+        )
 
         self._increment_indices()
 
