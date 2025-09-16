@@ -9,7 +9,7 @@
 import enum
 import os
 import time
-
+import yaml
 from pathlib import Path
 
 import numpy as np
@@ -19,9 +19,7 @@ from loguru import logger
 
 from .robot import factory
 from .robot import Robot
-from .utils import copy_file_on_host
-from .utils import ping
-from .utils import run_command_on_host
+from . import utils
 
 __all__ = ["Pepper"]
 
@@ -41,7 +39,7 @@ NAO = "nao"  # Linux username
 USB_SERVER = "http://198.18.0.1/apps"
 TABLET_HEIGHT = 800
 TABLET_WIDTH = 1280
-PEPPER_APP_PREFIX = "/home/nao/.local/share/PackageManager/apps"
+NAO_APP_PREFIX = "/home/nao/.local/share/PackageManager/apps"
 
 
 class CameraIndex(enum.IntEnum):
@@ -117,7 +115,7 @@ class QiRobot(Robot):
 
         self.session = qi.Session()
 
-        if not ping(ip):
+        if not utils.ping(ip):
             logger.warning(f"Destination host unreachable '{ip}'")
             return
 
@@ -187,9 +185,6 @@ class QiRobot(Robot):
         self.disable_face_traker()  # Fix bug in 2.5.5.5
 
         self.set_breathing(with_breathing)
-
-    def stop(self):
-        pass
 
     def robot_is_connected(self):
         """Return True if the robot is connected"""
@@ -339,9 +334,129 @@ class QiRobot(Robot):
             languages = self.tts_service.getAvailableLanguages()
         return languages
 
+    def move_joint(
+        self,
+        joint_name=["HeadYaw", "HeadPitch"],
+        angle_in_degree=[0.0, 0.0],
+        time_in_sec=[2.0, 2.0],
+        is_absolute=False,
+    ):
+        """Move the robot's head. By default, place it in the middle.
+
+        HeadYaw > 0 turns the head on the left, HeadYaw < 0 on the
+        right, HeadPitch > 0 goes down, HeadPitch < 0 goes up.
+
+        Args:
+            joint_name
+            angle_in_degree
+            time_in_sec
+            is_absolute (bool): Indicate whether angle_in_degree is relative to current position
+
+        """
+        if not self.robot_is_connected():
+            return
+        logger.info(
+            f"Moving {joint_name} of {angle_in_degree} deg in {time_in_sec} secs"
+        )
+
+        angle = [a * utils.TO_RAD for a in angle_in_degree]
+
+        self.motion_service.angleInterpolation(
+            joint_name, angle, time_in_sec, is_absolute
+        )
+
+    def look_at(self, coordinates):
+        """Moves the head such that `coordinates` is now at the center of the image"""
+        x, y = coordinates
+        cam = self.video_device_service.getActiveCamera()
+        hfov = self.video_device_service.getHorizontalFOV(cam)
+        vfov = self.video_device_service.getVerticalFOV(cam)
+        yaw_to_move = x / width * hfov
+        pitch_to_move = y / height * vfov
+
+        names = ["HeadYaw", "HeadPitch"]
+        angles = [-yaw_to_move * utils.TO_DEG, pitch_to_move * utils.TO_DEG]
+        speed = [1.0, 1.0]
+
+
+class Nao(QiRobot):
+    """Class to control the Nao robot"""
+
+    def __init__(
+        self,
+        name="nao",
+        ip=DEFAULT_IP,
+        port=DEFAULT_PORT,
+        top_resolution=None,
+        top_fps=DEFAULT_FPS,
+        bottom_resolution=None,
+        bottom_fps=DEFAULT_FPS,
+        language=DEFAULT_LANGUAGE,
+        tts_speed=DEFAULT_TTS_SPEED,
+        tts_pitch=DEFAULT_TTS_PITCH,
+        tts_dictionary=None,
+        with_animation=False,
+        with_breathing=False,
+    ):
+        super().__init__(
+            name=name,
+            ip=ip,
+            port=port,
+            top_resolution=top_resolution,
+            top_fps=top_fps,
+            bottom_resolution=bottom_resolution,
+            bottom_fps=bottom_fps,
+            language=language,
+            tts_speed=tts_speed,
+            tts_pitch=tts_pitch,
+            tts_dictionary=tts_dictionary,
+            with_animation=with_animation,
+            with_breathing=with_breathing,
+        )
+
+    def __repr__(self):
+        s = "Nao robot"
+        return s
+
+
+def nao_builder(
+    name="nao",
+    ip=DEFAULT_IP,
+    port=DEFAULT_PORT,
+    top_resolution=None,
+    top_fps=DEFAULT_FPS,
+    bottom_resolution=None,
+    bottom_fps=DEFAULT_FPS,
+    language=DEFAULT_LANGUAGE,
+    tts_speed=DEFAULT_TTS_SPEED,
+    tts_pitch=DEFAULT_TTS_PITCH,
+    tts_dictionary=None,
+    with_animation=False,
+    with_breathing=False,
+    **_ignored,
+):
+    return Nao(
+        name=name,
+        ip=ip,
+        port=port,
+        top_resolution=top_resolution,
+        top_fps=DEFAULT_FPS,
+        bottom_resolution=bottom_resolution,
+        bottom_fps=DEFAULT_FPS,
+        language=language,
+        tts_speed=tts_speed,
+        tts_pitch=tts_pitch,
+        tts_dictionary=tts_dictionary,
+        with_animation=with_animation,
+        with_breathing=with_breathing,
+    )
+
+
+factory.register("nao", nao_builder)
+
 
 class Pepper(QiRobot):
-    """Class to control Pepper robot"""
+    """Class to control the Pepper robot"""
 
     def __init__(
         self,
@@ -361,9 +476,9 @@ class Pepper(QiRobot):
         image_paths=None,
     ):
         super().__init__(
-            name,
-            ip,
-            port,
+            name=name,
+            ip=ip,
+            port=port,
             top_resolution=top_resolution,
             top_fps=top_fps,
             bottom_resolution=bottom_resolution,
@@ -385,15 +500,18 @@ class Pepper(QiRobot):
             image_paths = []
 
         if len(image_paths) > 0:
-            directory_on_robot = f"{PEPPER_APP_PREFIX}/{self.name}/html"
-            run_command_on_host(
+            directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html"
+            utils.run_command_on_host(
                 NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
             )
 
-        for path in image_paths:
-            tok = path.split(":")
-            msg = f"Expect input of the form alias:/path/to/image.png not {path}"
-            assert len(tok) == 2, msg
+        if not pathlib.Path(image_paths).is_file():
+            raise ValueError(f"Expect {image_paths} to be a file")
+
+        with open(image_paths) as f:
+            paths = yaml.load(f, Loader=yaml.SafeLoader)
+
+        for alias, image_path in paths.items():
             alias, image_path = tok
             self.add_image(alias, image_path)
 
@@ -402,19 +520,19 @@ class Pepper(QiRobot):
         return s
 
     def add_image(self, key, path):
-        """Add an image to be shown on the tablet and sneds it to the robot"""
+        """Add an image to be shown on the tablet and sends it to the robot"""
 
         if not Path(path).is_file():
             logger.error(f"Image `{path}` not found on the disk.")
 
         dry_run = False
-        directory_on_robot = f"{PEPPER_APP_PREFIX}/{self.name}/html"
+        directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html"
         cmd = f"mkdir -p {directory_on_robot}"
-        run_command_on_host(NAO, self.ip, cmd, dry_run=dry_run)
+        utils.run_command_on_host(NAO, self.ip, cmd, dry_run=dry_run)
 
         filename = Path(path).name
         path_on_robot = f"{directory_on_robot}/{filename}"
-        copy_file_on_host(NAO, self.ip, path, path_on_robot, dry_run=dry_run)
+        utils.copy_file_on_host(NAO, self.ip, path, path_on_robot, dry_run=dry_run)
 
         path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
         self.image_paths[key] = path_on_usb_server
