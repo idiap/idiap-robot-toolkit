@@ -379,16 +379,24 @@ class QiInterface(QtWidgets.QWidget):
             self.row_id,
             self.col_id,
             1,
-            self.max_nb_columns - 1,
-        )
-
-        layout.addWidget(
-            self._create_quit_box(),
-            self.row_id,
-            self.max_nb_columns - 1,
+            self.max_nb_columns,
         )
 
         self._new_row()
+
+        layout.addWidget(
+            self._create_video_head_commands_box(),
+            self.row_id,
+            self.col_id,
+            1,
+            self.max_nb_columns,
+        )
+
+        self._new_row()
+
+        layout.addWidget(self._create_quit_box(), self.row_id, self.col_id)
+
+        self._increment_indices()
 
         layout.addWidget(self._create_general_box(), self.row_id, self.col_id)
 
@@ -398,9 +406,7 @@ class QiInterface(QtWidgets.QWidget):
             layout.addWidget(self._create_tablet_box(), self.row_id, self.col_id)
             self._increment_indices()
 
-        layout.addWidget(
-            self._create_video_head_commands_box(), self.row_id, self.col_id
-        )
+        self._new_row()
 
         self._increment_indices()
 
