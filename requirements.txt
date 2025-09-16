@@ -1,6 +1,7 @@
 loguru
 numpy
 opencv-python
+pyyaml
 qi
 PySide6
 qtpy
