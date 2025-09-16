@@ -7,6 +7,7 @@
 # This file is part of the irt package
 
 import argparse
+import configparser
 import pathlib
 import sys
 
@@ -102,8 +103,11 @@ class RobotRunnable(QtCore.QRunnable):
 
     def run(self):
         logger.debug(f"Call {self.func} with args {self.args} kwargs {self.kwargs}")
-        f = getattr(self.robot, self.func)
-        f(*self.args, **self.kwargs)
+        try:
+            f = getattr(self.robot, self.func)
+            f(*self.args, **self.kwargs)
+        except Exception:
+            logger.warning(f"Could not run function {self.func}")
 
 
 class QiInterface(QtWidgets.QWidget):
@@ -115,6 +119,7 @@ class QiInterface(QtWidgets.QWidget):
         name="wizard",
         nb_columns=5,
         default_language="English",
+        scenario=None,
     ):
         super().__init__()
 
@@ -132,6 +137,7 @@ class QiInterface(QtWidgets.QWidget):
         self.anim_checkbox = QtWidgets.QCheckBox("Animation")
         # self.anim_checkbox.setChecked(with_animation)
 
+        self.scenario_path = scenario
         self._create_gui()
 
     def execute(self, name, *args, **kwargs):
@@ -324,6 +330,46 @@ class QiInterface(QtWidgets.QWidget):
 
         return gpe
 
+    def _add_say_btn(self, speech, name=""):
+        """Return a button to trigger a speech sentence. If name is empty, use
+        the speech as name
+
+        """
+        if len(name) == 0:
+            name = speech
+
+        btn = QtWidgets.QPushButton(name)
+        btn.clicked.connect(
+            lambda: [
+                self.execute("set_with_animation", self.anim_checkbox.isChecked()),
+                self.execute("say", speech),
+            ]
+        )
+
+        return btn
+
+    def _load_scenario_file(self, filename):
+        """Load a .ini file with the following format:
+
+        [name of the section]
+
+        Name of button 1 = Text to say when the button is clicked
+        Name of button 2 = The longer text that will be said when button 2 is clicked
+
+        """
+        config = configparser.ConfigParser()
+        config.optionxform = str
+        config.read(filename)
+        gpes = []
+        for section in config.sections():
+            vbox = QtWidgets.QVBoxLayout()
+            for key, val in config.items(section):
+                vbox.addWidget(self._add_say_btn(val, key))
+            gpe = QtWidgets.QGroupBox(section)
+            gpe.setLayout(vbox)
+            gpes.append(gpe)
+        return gpes
+
     def _create_gui(self):
         self.setWindowTitle("Qi robot Wizard of Oz")
         layout = QtWidgets.QGridLayout(self)
@@ -358,18 +404,28 @@ class QiInterface(QtWidgets.QWidget):
 
         self._increment_indices()
 
+        if pathlib.Path(self.scenario_path):
+            self._new_row()
+            gpes = self._load_scenario_file(self.scenario_path)
+            for gpe in gpes:
+                layout.addWidget(gpe, self.row_id, self.col_id)
+                self._increment_indices()
+
         self.setLayout(layout)
 
 
 def main():
     parser = argparse.ArgumentParser()
     irt.robot.add_parser_options(parser, default_robot="pepper")
+    parser.add_argument(
+        "--scenario", type=str, default=None, help="File .ini of buttons"
+    )
     args = parser.parse_args()
 
     robot = irt.robot.build_robot_from_args(args)
 
     app = QtWidgets.QApplication(sys.argv)
-    gui = QiInterface(robot)
+    gui = QiInterface(robot, scenario=args.scenario)
     gui.show()
     sys.exit(app.exec())
 
