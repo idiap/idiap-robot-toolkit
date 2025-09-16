@@ -19,14 +19,18 @@ class Robot:
 
     def stop(self):
         """Call this function at the end of the program"""
-        raise NotImplementedError
+        pass
 
     def get_frame(self):
-        """Return success and frame of the main camera"""
+        """Return success and RGB frame of the main camera"""
         raise NotImplementedError
 
     def say(self, text):
         """Say the input string"""
+        raise NotImplementedError
+
+    def look_at(self, coordinates):
+        """Move the camera/arm/head towards the coordinates"""
         raise NotImplementedError
 
     def release(self):
