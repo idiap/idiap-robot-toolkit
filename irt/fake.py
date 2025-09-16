@@ -19,17 +19,12 @@ __all__ = ["FakeRobot"]
 
 
 class FakeRobot(Robot):
-    """A class to emulate a Robot with webcam"""
+    """A class to emulate a Robot with a webcam"""
 
     def __init__(self, name="Fake", camera_index=0):
         super().__init__(name)
 
         self.camera = cv2.VideoCapture(camera_index)
-        self.success = False
-        self.frame = None
-
-    def stop(self):
-        pass
 
     def __repr__(self):
         s = f"Fake robot '{self.name}'"
@@ -38,8 +33,17 @@ class FakeRobot(Robot):
     def say(self, text):
         logger.info(text)
 
+    def look_at(self, coordinates):
+        """Move the camera/arm/head towards the coordinates"""
+        logger.info(f"Looking at {coordinates}")
+
     def get_frame(self):
-        return self.camera.read()
+        success, frame = self.camera.read()
+
+        if success:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        return success, frame
 
 
 def fake_robot_builder(name="Fake", camera_index=0, **_ignored):
