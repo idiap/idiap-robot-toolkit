@@ -41,10 +41,7 @@ class HeadImageController(QtWidgets.QGraphicsView):
         self.setFixedSize(self.width + 10, self.height + 10)
 
         self.image = QtGui.QImage()
-        self.pixMapItem = QtWidgets.QGraphicsPixmapItem(
-            QtGui.QPixmap(self.image),
-            None,
-        )
+        self.pixMapItem = QtWidgets.QGraphicsPixmapItem(QtGui.QPixmap(self.image), None)
         self.pixMapItem.mousePressEvent = self.pixelSelect
 
         self.setScene(QtWidgets.QGraphicsScene(self))
@@ -62,16 +59,6 @@ class HeadImageController(QtWidgets.QGraphicsView):
         y = float(event.pos().y()) - height / 2
 
         self.position.emit((x, y))
-
-        # cam = self.robot.alvideo.getActiveCamera()
-        # hfov = self.robot.alvideo.getHorizontalFOV(cam)
-        # vfov = self.robot.alvideo.getVerticalFOV(cam)
-        # yaw_to_move = x / width * hfov
-        # pitch_to_move = y / height * vfov
-
-        # names = ["HeadYaw", "HeadPitch"]
-        # angles = [-yaw_to_move * utils.TO_DEG, pitch_to_move * utils.TO_DEG]
-        # speed = [1.0, 1.0]
 
     def timerEvent(self, event):
         """Called periodically. Retrieve a nao image, and update the widget."""
@@ -261,7 +248,6 @@ class QiInterface(QtWidgets.QWidget):
             lambda: [
                 self.execute("set_with_animation", self.anim_checkbox.isChecked()),
                 self.execute("say", edit.text()),
-                # edit.text().encode("utf-8")),
                 edit.setText(""),
             ]
         )
@@ -360,6 +346,7 @@ class QiInterface(QtWidgets.QWidget):
         config = configparser.ConfigParser()
         config.optionxform = str
         config.read(filename)
+
         gpes = []
         for section in config.sections():
             vbox = QtWidgets.QVBoxLayout()
@@ -368,6 +355,7 @@ class QiInterface(QtWidgets.QWidget):
             gpe = QtWidgets.QGroupBox(section)
             gpe.setLayout(vbox)
             gpes.append(gpe)
+
         return gpes
 
     def _create_gui(self):
@@ -375,11 +363,7 @@ class QiInterface(QtWidgets.QWidget):
         layout = QtWidgets.QGridLayout(self)
 
         layout.addWidget(
-            self._create_speech_box(),
-            self.row_id,
-            self.col_id,
-            1,
-            self.max_nb_columns,
+            self._create_speech_box(), self.row_id, self.col_id, 1, self.max_nb_columns
         )
 
         self._new_row()
@@ -407,8 +391,6 @@ class QiInterface(QtWidgets.QWidget):
             self._increment_indices()
 
         self._new_row()
-
-        self._increment_indices()
 
         if pathlib.Path(self.scenario_path):
             self._new_row()
