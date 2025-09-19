@@ -58,7 +58,7 @@ class HeadImageController(QtWidgets.QGraphicsView):
         x = float(event.pos().x()) - width / 2
         y = float(event.pos().y()) - height / 2
 
-        self.position.emit((x, y))
+        self.position.emit({"coordinates": (x, y), "resolution": (width, height)})
 
     def timerEvent(self, event):
         """Called periodically. Retrieve a nao image, and update the widget."""
@@ -186,7 +186,6 @@ class QiInterface(QtWidgets.QWidget):
         postures = self.robot.get_available_postures()
         for posture in postures:
             btn = QtWidgets.QPushButton(posture, self)
-            print(f"posture {posture}")
             btn.clicked.connect(
                 lambda _, p=posture: self.execute("go_to_posture", name=p, speed=0.5)
             )
@@ -269,10 +268,9 @@ class QiInterface(QtWidgets.QWidget):
 
         return gpe
 
-    @QtCore.Slot(tuple)
-    def _turn_head(self, t):
-        print(f"t {t}")
-        self.execute("look_at", t)
+    @QtCore.Slot(dict)
+    def _turn_head(self, data):
+        self.execute("look_at", **data)
 
     def _create_video_head_commands_box(self):
         gpe = QtWidgets.QGroupBox("Head", self)
