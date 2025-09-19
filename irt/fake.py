@@ -39,10 +39,6 @@ class FakeRobot(Robot):
 
     def get_frame(self):
         success, frame = self.camera.read()
-
-        if success:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
         return success, frame
 
 
