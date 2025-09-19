@@ -374,9 +374,10 @@ class QiRobot(Robot):
             joint_name, angle, time_in_sec, is_absolute
         )
 
-    def look_at(self, coordinates):
+    def look_at(self, coordinates, resolution):
         """Moves the head such that `coordinates` is now at the center of the image"""
         x, y = coordinates
+        width, height = resolution
         cam = self.video_device_service.getActiveCamera()
         hfov = self.video_device_service.getHorizontalFOV(cam)
         vfov = self.video_device_service.getVerticalFOV(cam)
@@ -386,6 +387,7 @@ class QiRobot(Robot):
         names = ["HeadYaw", "HeadPitch"]
         angles = [-yaw_to_move * utils.TO_DEG, pitch_to_move * utils.TO_DEG]
         speed = [1.0, 1.0]
+        self.move_joint(joint_name=names, angle_in_degree=angles, time_in_sec=speed)
 
 
 class Nao(QiRobot):
