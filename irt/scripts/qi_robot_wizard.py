@@ -100,6 +100,52 @@ class RobotRunnable(QtCore.QRunnable):
             logger.error(e)
 
 
+class BatteryWidget(QtWidgets.QWidget):
+    def __init__(self, robot, minutes=1):
+        super().__init__()
+        self.robot = robot
+
+        self.progress = QtWidgets.QProgressBar()
+        self.progress.setRange(0, 100)
+        self.progress.setTextVisible(True)
+        self.progress.setMaximumWidth(200)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.progress)
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.update_level)
+        self.timer.start(minutes * 60 * 1000)
+
+        self.update_level()
+
+    def update_level(self):
+        level = self.robot.get_battery_level()
+        self.progress.setValue(level)
+
+        if level < 10:
+            color = "#F10000"
+        elif level < 25:
+            color = "#FF8000"
+        elif level < 50:
+            color = "#FED502"
+        elif level < 75:
+            color = "#B4DA01"
+        else:
+            color = "#3FAA00"
+
+        self.progress.setStyleSheet(f"""
+            QProgressBar {{
+                border: 1px solid grey;
+                text-align: center;
+            }}
+            QProgressBar::chunk {{
+                background-color: {color};
+                width: 1px;
+            }}
+        """)
+
+
 class QiInterface(QtWidgets.QWidget):
     """The Wizard of Oz"""
 
@@ -154,7 +200,7 @@ class QiInterface(QtWidgets.QWidget):
 
     def _interrupt_btn(self):
         btn = QtWidgets.QPushButton("Interruption", self)
-        btn.clicked.connect(lambda: self.execute("interrupt_animated_speech"))
+        btn.clicked.connect(lambda: self.execute("interrupt"))
         btn.setStyleSheet("background-color: red")
         return btn
 
@@ -164,6 +210,8 @@ class QiInterface(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self._interrupt_btn())
         layout.addWidget(self._quit_btn())
+        layout.addWidget(BatteryWidget(self.robot))
+        gpe.setFixedWidth(300)
         gpe.setLayout(layout)
         return gpe
 
@@ -296,32 +344,36 @@ class QiInterface(QtWidgets.QWidget):
         btn.clicked.connect(lambda: self.execute("show_image", image_alias=image))
         return btn
 
+    def _image_btn(self, image_alias, image_path):
+        pixmap = QtGui.QPixmap(image_path)
+        pixmap = pixmap.scaledToHeight(64, QtCore.Qt.SmoothTransformation)
+        btn = QtWidgets.QPushButton()
+        btn.clicked.connect(lambda: self.execute("show_image", image_alias=image_alias))
+        btn.setIcon(QtGui.QIcon(pixmap))
+        btn.setIconSize(pixmap.size())
+        return btn
+
     def _create_tablet_box(self):
         """Return a group box with tablet actions"""
 
-        gpe = QtWidgets.QGroupBox("Tablet")
+        gpe = QtWidgets.QGroupBox("Images")
         layout = QtWidgets.QVBoxLayout()
 
-        for image_alias in self.robot.image_paths:
-            btn = self._show_image_btn(name, image_alias)
-            layout.addWidget(btn)
-
-        # # Empty web page with <h1 id="content">
-        # empty_page = "{}/empty.html".format(USB_SERVER)
-        btn = QtWidgets.QPushButton("Empty web page", self)
-        # btn.clicked.connect(lambda: self.robot.load_url(empty_page))
-        layout.addWidget(btn)
-
         edit = QtWidgets.QLineEdit("Print me on the tablet")
-        # edit.returnPressed.connect(
-        #     lambda: [
-        #         self.robot.load_url(empty_page),
-        #         time.sleep(0.5),
-        #         self.robot.update_content_url_page(str(edit.text()), "content"),
-        #     ]
-        # )
+        edit.returnPressed.connect(
+            lambda: [
+                self.robot.print_text_on_tablet(str(edit.text())),
+            ]
+        )
         layout.addWidget(edit)
 
+        images = QtWidgets.QHBoxLayout()
+        paths = self.robot.get_local_image_paths()
+        for image_alias, image_path in paths.items():
+            btn = self._image_btn(image_alias, image_path)
+            images.addWidget(btn)
+
+        layout.addLayout(images)
         gpe.setLayout(layout)
 
         return gpe
@@ -370,47 +422,69 @@ class QiInterface(QtWidgets.QWidget):
 
     def _create_gui(self):
         self.setWindowTitle("Qi robot Wizard of Oz")
-        layout = QtWidgets.QGridLayout(self)
+        # layout = QtWidgets.QGridLayout(self)
 
-        layout.addWidget(
-            self._create_speech_box(), self.row_id, self.col_id, 1, self.max_nb_columns
-        )
+        # layout.addWidget(
+        #     self._create_speech_box(), self.row_id, self.col_id, 1, self.max_nb_columns
+        # )
 
-        self._new_row()
+        # self._new_row()
 
-        layout.addWidget(
-            self._create_video_head_commands_box(),
-            self.row_id,
-            self.col_id,
-            1,
-            self.max_nb_columns,
-        )
+        # layout.addWidget(
+        #     self._create_video_head_commands_box(),
+        #     self.row_id,
+        #     self.col_id,
+        #     1,
+        #     self.max_nb_columns,
+        # )
 
-        self._new_row()
+        # self._new_row()
 
-        layout.addWidget(self._create_quit_box(), self.row_id, self.col_id)
+        # layout.addWidget(self._create_quit_box(), self.row_id, self.col_id)
 
-        self._increment_indices()
+        # self._increment_indices()
 
-        layout.addWidget(self._create_posture_box(), self.row_id, self.col_id)
+        # layout.addWidget(self._create_posture_box(), self.row_id, self.col_id)
 
-        self._increment_indices()
+        # self._increment_indices()
 
-        if hasattr(self.robot, "image_paths") and len(self.robot.image_paths) > 0:
-            layout.addWidget(self._create_tablet_box(), self.row_id, self.col_id)
-            self._increment_indices()
+        # if hasattr(self.robot, "image_paths") and len(self.robot.image_paths) > 0:
+        #     layout.addWidget(self._create_tablet_box(), self.row_id, self.col_id)
+        #     self._increment_indices()
 
-        self._new_row()
+        # self._new_row()
+
+        # if (
+        #     self.scenario_path is not None
+        #     and pathlib.Path(self.scenario_path).is_file()
+        # ):
+        #     self._new_row()
+        #     gpes = self._load_scenario_file(self.scenario_path)
+        #     for gpe in gpes:
+        #         layout.addWidget(gpe, self.row_id, self.col_id)
+        #         self._increment_indices()
+
+        ##################################################
+        # Test vertical layout
+        layout = QtWidgets.QVBoxLayout(self)
+        h = QtWidgets.QHBoxLayout()
+        h.addWidget(self._create_quit_box())
+        h.addWidget(self._create_speech_box())
+        layout.addLayout(h)
+
+        layout.addWidget(self._create_video_head_commands_box())
+
+        layout.addWidget(self._create_tablet_box())
 
         if (
             self.scenario_path is not None
             and pathlib.Path(self.scenario_path).is_file()
         ):
-            self._new_row()
+            h = QtWidgets.QHBoxLayout()
             gpes = self._load_scenario_file(self.scenario_path)
             for gpe in gpes:
-                layout.addWidget(gpe, self.row_id, self.col_id)
-                self._increment_indices()
+                h.addWidget(gpe)
+        layout.addLayout(h)
 
         self.setLayout(layout)
 
