@@ -14,6 +14,7 @@ from loguru import logger
 from .robot import factory
 from .robot import Robot
 
+DEFAULT_CAMERA = 0
 
 __all__ = ["FakeRobot"]
 
@@ -21,7 +22,7 @@ __all__ = ["FakeRobot"]
 class FakeRobot(Robot):
     """A class to emulate a Robot with a webcam"""
 
-    def __init__(self, name="Fake", camera_index=0):
+    def __init__(self, name="Fake", camera_index=DEFAULT_CAMERA):
         super().__init__(name)
 
         self.camera = cv2.VideoCapture(camera_index)
@@ -37,12 +38,13 @@ class FakeRobot(Robot):
         """Move the camera/arm/head towards the coordinates"""
         logger.info(f"Looking at {coordinates}")
 
-    def get_frame(self):
+    def get_frame(self, camera=DEFAULT_CAMERA):
+        """Parameter `camera` is not used"""
         success, frame = self.camera.read()
         return success, frame
 
 
-def fake_robot_builder(name="Fake", camera_index=0, **_ignored):
+def fake_robot_builder(name="Fake", camera_index=DEFAULT_CAMERA, **_ignored):
     return FakeRobot(name=name, camera_index=camera_index)
 
 
