@@ -65,6 +65,7 @@ class HeadImageController(QtWidgets.QGraphicsView):
 
         success, cv2_image = self.robot.get_frame()
         cv2_image = cv2.resize(cv2_image, (self.width, self.height))
+        cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
         self.cv2_image = cv2_image
         self.image = QtGui.QImage(
             cv2_image.data,
@@ -90,11 +91,13 @@ class RobotRunnable(QtCore.QRunnable):
 
     def run(self):
         logger.debug(f"Call {self.func} with args {self.args} kwargs {self.kwargs}")
+
         try:
             f = getattr(self.robot, self.func)
             f(*self.args, **self.kwargs)
-        except Exception:
+        except Exception as e:
             logger.warning(f"Could not run function {self.func}")
+            logger.error(e)
 
 
 class QiInterface(QtWidgets.QWidget):
@@ -127,9 +130,9 @@ class QiInterface(QtWidgets.QWidget):
         self.scenario_path = scenario
         self._create_gui()
 
-    def execute(self, name, *args, **kwargs):
+    def execute(self, func, *args, **kwargs):
         """Call function robot.name()"""
-        qrun = RobotRunnable(self.robot, name, *args, **kwargs)
+        qrun = RobotRunnable(self.robot, func, *args, **kwargs)
         QtCore.QThreadPool.globalInstance().start(qrun)
 
     def _increment_indices(self):
@@ -174,12 +177,21 @@ class QiInterface(QtWidgets.QWidget):
         btn.clicked.connect(lambda: self.execute("rest"))
         return btn
 
-    def _create_general_box(self):
+    def _create_posture_box(self):
         """Return a group box with all general actions"""
-        gpe = QtWidgets.QGroupBox("General")
+        gpe = QtWidgets.QGroupBox("Posture")
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self._wake_up_btn())
         layout.addWidget(self._rest_btn())
+        postures = self.robot.get_available_postures()
+        for posture in postures:
+            btn = QtWidgets.QPushButton(posture, self)
+            print(f"posture {posture}")
+            btn.clicked.connect(
+                lambda _, p=posture: self.execute("go_to_posture", name=p, speed=0.5)
+            )
+            layout.addWidget(btn)
+
         gpe.setLayout(layout)
         return gpe
 
@@ -382,7 +394,7 @@ class QiInterface(QtWidgets.QWidget):
 
         self._increment_indices()
 
-        layout.addWidget(self._create_general_box(), self.row_id, self.col_id)
+        layout.addWidget(self._create_posture_box(), self.row_id, self.col_id)
 
         self._increment_indices()
 
