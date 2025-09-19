@@ -21,8 +21,12 @@ class Robot:
         """Call this function at the end of the program"""
         pass
 
-    def get_frame(self):
-        """Return success and RGB frame of the main camera"""
+    def get_battery_level(self):
+        """Return the level of the battery"""
+        return 100
+
+    def get_frame(self, camera):
+        """Return success and RGB frame of the `camera`"""
         raise NotImplementedError
 
     def say(self, text):
