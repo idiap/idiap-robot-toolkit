@@ -312,6 +312,15 @@ class QiRobot(Robot):
         logger.info("Resting")
         self.motion_service.rest()
 
+    def get_available_postures(self):
+        """Return a list of available postures"""
+        return self.posture_service.getPostureList()
+
+    def go_to_posture(self, name, speed=0.5):
+        """Move the robot in the input posture `name`"""
+        print(f"name {name}")
+        self.posture_service.goToPosture(name, speed)
+
     def set_breathing(self, value=True, chain_name="Arms"):
         """Whether to enable breathing"""
         if not self.robot_is_connected():
