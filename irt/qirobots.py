@@ -30,6 +30,7 @@ DEFAULT_FPS = 30
 DEFAULT_COLOR_SPACE = 13
 DEFAULT_RESOLUTION = "vga"
 DEFAULT_LANGUAGE = "English"
+DEFAULT_CAMERA = "top"
 DEFAULT_TTS_SPEED = 100
 DEFAULT_TTS_PITCH = 100
 DEFAULT_TTS_PITCH_SHIFT = 1.1
@@ -125,6 +126,8 @@ class QiRobot(Robot):
             logger.warning("No robot connected in constructor")
             return
 
+        self.battery_service = self.session.service("ALBattery")
+
         # Posture
         self.posture_service = self.session.service("ALRobotPosture")
         self.motion_service = self.session.service("ALMotion")
@@ -193,6 +196,9 @@ class QiRobot(Robot):
             return False
         else:
             return True
+
+    def get_battery_level(self):
+        return self.battery_service.getBatteryCharge()
 
     def disable_face_traker(self):
         """Work around to stop tracker when the robot tracks on its own"""
@@ -276,8 +282,13 @@ class QiRobot(Robot):
                 logger.warning(f"Unregistering {name}")
                 self.video_device_service.unsubscribe(name)
 
-    def get_frame(self):
-        return self.get_top_frame()
+    def get_frame(self, camera=DEFAULT_CAMERA):
+        if camera == "top" or camera == CameraIndex.TOP_CAMERA.value:
+            return self.get_top_frame()
+        elif camera == "bottom" or camera == CameraIndex.BOTTOM_CAMERA.value:
+            return self.get_bottom_frame()
+        else:
+            raise ValueError(f"Unkown camera {camera}")
 
     def get_top_frame(self):
         success, frame = False, None
