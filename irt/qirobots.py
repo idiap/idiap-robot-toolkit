@@ -308,6 +308,18 @@ class QiRobot(Robot):
             success = True
         return success, frame
 
+    def interrupt(self):
+        """Stop everything"""
+        if not self.robot_is_connected():
+            return
+        self.animated_speech_service._stopAll(True)
+        self.tts_service.stopAll()
+        if self.motion_service.robotIsWakeUp():
+            self.posture_service.stopMove()
+            time.sleep(0.5)
+            self.posture_service.goToPosture("StandInit", 0.4)
+            self.motion_service.moveTo(0, 0, 0)
+
     def wake_up(self):
         """Wake the robot up"""
         if not self.robot_is_connected():
@@ -478,7 +490,13 @@ factory.register("nao", nao_builder)
 
 
 class Pepper(QiRobot):
-    """Class to control the Pepper robot"""
+    """Class to control the Pepper robot
+
+    Args:
+
+      tablet_images: Directory containing images or yaml file of alias:path
+
+    """
 
     def __init__(
         self,
@@ -495,7 +513,7 @@ class Pepper(QiRobot):
         tts_dictionary=None,
         with_animation=False,
         with_breathing=False,
-        image_paths=None,
+        tablet_images=None,
     ):
         super().__init__(
             name=name,
@@ -515,31 +533,87 @@ class Pepper(QiRobot):
         # Tablet service
         self.tablet_service = self.session.service("ALTabletService")
 
-        dry_run = False
-        self.image_paths = {}
+        self.tablet_images = {}
+        for path in tablet_images:
+            self.load_tablet_images(path)
 
-        if image_paths is None:
-            image_paths = []
-
-        if len(image_paths) > 0:
-            directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html"
-            utils.run_command_on_host(
-                NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
-            )
-
-        if len(image_paths) > 0 and not pathlib.Path(image_paths).is_file():
-            raise ValueError(f"Expect {image_paths} to be a file")
-
-            with open(image_paths) as f:
-                paths = yaml.load(f, Loader=yaml.SafeLoader)
-
-            for alias, image_path in paths.items():
-                alias, image_path = tok
-                self.add_image(alias, image_path)
+        self.tablet_mode = "image"
+        self.empty_page = self.copy_empty_page()
 
     def __repr__(self):
         s = "Pepper robot"
         return s
+
+    def copy_empty_page(self):
+        """"""
+        root = pathlib.Path(__file__).parent.parent
+        local_empty_page = root / "resources" / "empty.html"
+
+        directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}"
+        cmd = f"mkdir -p {directory_on_robot}"
+        path_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html/empty.html"
+
+        utils.copy_file_on_host(NAO, self.ip, local_empty_page, path_on_robot)
+
+        path_on_usb_server = f"{USB_SERVER}/{self.name}/empty.html"
+
+        return path_on_usb_server
+
+    def load_url(self, url):
+        """Load the content of an Internet web page"""
+        if not self.robot_is_connected():
+            return
+
+        logger.info(f"Loading <{url}>")
+
+        # if self.tablet_mode != "web":
+        #     self.tablet_service.loadUrl(url)
+
+        self.tablet_service.showWebview()
+        time.sleep(0.5)
+        # self.tablet_service.showWebview()
+        # time.sleep(0.5)
+        self.tablet_service.loadUrl(url)
+        self.tablet_mode = "web"
+
+    def update_content_url_page(self, content, id_name):
+        """Update the content of 'id_name' with 'content'
+
+        Args:
+            content : String text
+            id_name : Name of HTML tag
+
+        """
+        if not self.robot_is_connected():
+            return
+
+        logger.info(f"Update content with '{content}'")
+        js = f"var x = document.getElementById('{id_name}').innerHTML = '{content}';"
+        self.tablet_service.executeJS(js)
+
+    def print_text_on_tablet(self, text):
+        """Load empty page and print text on it"""
+        if not self.robot_is_connected():
+            return
+
+        self.load_url(self.empty_page)
+        time.sleep(0.4)
+        self.update_content_url_page(text, "content")
+
+    def load_tablet_images(self, path):
+        """Send images to robot"""
+        if pathlib.Path(path).is_dir():
+            for filename in utils.list_directory(path):
+                alias = pathlib.Path(filename).stem
+                if pathlib.Path(filename).suffix.lower() in utils.IMAGE_EXTENSIONS:
+                    self.add_image(alias, filename)
+
+        elif pathlib.Path(path).suffix == ".yaml":
+            with open(path) as f:
+                paths = yaml.load(f, Loader=yaml.SafeLoader)
+
+                for alias, image_path in paths.items():
+                    self.add_image(alias, image_path)
 
     def add_image(self, key, path):
         """Add an image to be shown on the tablet and sends it to the robot"""
@@ -557,23 +631,34 @@ class Pepper(QiRobot):
         utils.copy_file_on_host(NAO, self.ip, path, path_on_robot, dry_run=dry_run)
 
         path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
-        self.image_paths[key] = path_on_usb_server
-        logger.info(f"Adding image `{path}` with key '{key}'.")
+
+        if key not in self.tablet_images:
+            logger.info(f"Adding image `{path}` with key '{key}'.")
+            self.tablet_images[key] = {"local": path, "robot": path_on_usb_server}
+        else:
+            raise ValueError(f"Image '{key}' already in list")
+
+    def get_local_image_paths(self):
+        paths = {}
+        for alias, path in self.tablet_images.items():
+            paths[alias] = path["local"]
+        return paths
 
     def show_image(self, image_alias):
         """Show the image on the tablet"""
         if not self.robot_is_connected():
             return
 
-        if image_alias not in self.image_paths:
+        if image_alias not in self.tablet_images:
             logger.error(f"Image '{image_alias}' not present. Skipping.")
 
-        # The first time, it does not work
-        # for i in range(2):
-        #     self.tablet_service.showImageNoCache(self.image_paths[image_alias])
-        #     time.sleep(0.1)
-        self.tablet_service.showImage(self.image_paths[image_alias])
-        # self.tablet_service.showImageNoCache(self.image_paths[image_alias])
+        path = self.tablet_images[image_alias]["robot"]
+
+        self.tablet_service.showImageNoCache(path)
+        time.sleep(0.5)
+        self.tablet_service.showImage(path)
+
+        self.tablet_mode = "image"
 
 
 def pepper_builder(
@@ -590,7 +675,7 @@ def pepper_builder(
     tts_dictionary=None,
     with_animation=False,
     with_breathing=False,
-    image_paths=None,
+    tablet_images=None,
     **_ignored,
 ):
     return Pepper(
@@ -607,7 +692,7 @@ def pepper_builder(
         tts_dictionary=tts_dictionary,
         with_animation=with_animation,
         with_breathing=with_breathing,
-        image_paths=image_paths,
+        tablet_images=tablet_images,
     )
 
 
