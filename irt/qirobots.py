@@ -8,9 +8,9 @@
 
 import enum
 import os
+import pathlib
 import time
 import yaml
-from pathlib import Path
 
 import numpy as np
 import qi
@@ -209,7 +209,7 @@ class QiRobot(Robot):
     def add_to_dictionary(self, dictionary):
         """Add the pronounciation of input words"""
         d = []
-        if Path(dictionary).is_file():
+        if pathlib.Path(dictionary).is_file():
             with open(dictionary) as f:
                 for line in f:
                     tok = line.strip().split("=")
@@ -505,15 +505,15 @@ class Pepper(QiRobot):
                 NAO, self.ip, f"mkdir -p {directory_on_robot}", dry_run=dry_run
             )
 
-        if not pathlib.Path(image_paths).is_file():
+        if len(image_paths) > 0 and not pathlib.Path(image_paths).is_file():
             raise ValueError(f"Expect {image_paths} to be a file")
 
-        with open(image_paths) as f:
-            paths = yaml.load(f, Loader=yaml.SafeLoader)
+            with open(image_paths) as f:
+                paths = yaml.load(f, Loader=yaml.SafeLoader)
 
-        for alias, image_path in paths.items():
-            alias, image_path = tok
-            self.add_image(alias, image_path)
+            for alias, image_path in paths.items():
+                alias, image_path = tok
+                self.add_image(alias, image_path)
 
     def __repr__(self):
         s = "Pepper robot"
@@ -522,7 +522,7 @@ class Pepper(QiRobot):
     def add_image(self, key, path):
         """Add an image to be shown on the tablet and sends it to the robot"""
 
-        if not Path(path).is_file():
+        if not pathlib.Path(path).is_file():
             logger.error(f"Image `{path}` not found on the disk.")
 
         dry_run = False
@@ -530,7 +530,7 @@ class Pepper(QiRobot):
         cmd = f"mkdir -p {directory_on_robot}"
         utils.run_command_on_host(NAO, self.ip, cmd, dry_run=dry_run)
 
-        filename = Path(path).name
+        filename = pathlib.Path(path).name
         path_on_robot = f"{directory_on_robot}/{filename}"
         utils.copy_file_on_host(NAO, self.ip, path, path_on_robot, dry_run=dry_run)
 
