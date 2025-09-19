@@ -8,12 +8,15 @@
 
 import collections
 import math
+import pathlib
 import socket
 import subprocess
 import time
 
 TO_DEG = 180 / math.pi
 TO_RAD = math.pi / 180
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".jp2", ".tif", ".tiff"}
+VIDEO_EXTENSIONS = {".avi", ".mp4", ".mov", ".mkv", ".wmv", ".flv", ".webm", ".m4v"}
 
 
 class FPS:
@@ -99,3 +102,18 @@ def copy_file_on_host(username, host, filename, path_on_host, dry_run=False):
     else:
         result = subprocess.run(cmd)
     return result
+
+
+def list_directory(dirname, extensions=None):
+    """Return a list of absolute filenames present in `dirname`
+    if the filename extensions belong to `extensions`
+
+    """
+    if extensions is not None and isinstance(extensions, str):
+        extensions = set([extensions])
+    p = pathlib.Path(dirname).glob("**/*")
+    filenames = [f.absolute().as_posix() for f in p if f.is_file()]
+    if extensions is not None:
+        filenames = [f for f in filenames if pathlib.Path(f).suffix in extensions]
+    filenames.sort()
+    return filenames
