@@ -392,7 +392,10 @@ class QiInterface(QtWidgets.QWidget):
 
         self._new_row()
 
-        if pathlib.Path(self.scenario_path):
+        if (
+            self.scenario_path is not None
+            and pathlib.Path(self.scenario_path).is_file()
+        ):
             self._new_row()
             gpes = self._load_scenario_file(self.scenario_path)
             for gpe in gpes:
