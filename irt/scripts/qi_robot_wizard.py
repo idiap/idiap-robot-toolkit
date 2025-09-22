@@ -89,16 +89,6 @@ class QiInterface(QtWidgets.QWidget):
         gpe.setLayout(layout)
         return gpe
 
-    # def _wake_up_btn(self):
-    #     btn = QtWidgets.QPushButton("Wake up", self)
-    #     btn.clicked.connect(lambda: self.execute("wake_up"))
-    #     return btn
-
-    # def _rest_btn(self):
-    #     btn = QtWidgets.QPushButton("Rest", self)
-    #     btn.clicked.connect(lambda: self.execute("rest"))
-    #     return btn
-
     def _create_posture_box(self):
         """Return a group box with all general actions"""
         gpe = QtWidgets.QGroupBox("Posture")
@@ -112,16 +102,15 @@ class QiInterface(QtWidgets.QWidget):
                 lambda _, p=posture: self.execute("go_to_posture", name=p, speed=0.5)
             )
             layout.addWidget(btn)
-
         gpe.setLayout(layout)
         return gpe
 
     def _rotate_robot_btn(self):
+        """The rotary button to make Pepper turn on itself"""
         btn = QtWidgets.QDial()
         btn.setRange(-180, 180)
         btn.setNotchesVisible(True)
         btn.setValue(0)
-        # btn.sliderReleased.connect(_btn_released)
         btn.sliderReleased.connect(
             lambda: [
                 self.execute("move_to", x=0, y=0, theta=-btn.value()),
@@ -132,7 +121,7 @@ class QiInterface(QtWidgets.QWidget):
         return btn
 
     def _create_movement_box(self):
-        """Return teh Dial widget and center body button"""
+        """Return the Dial widget and center body button"""
         gpe = QtWidgets.QGroupBox("Movement", self)
         layout = QtWidgets.QVBoxLayout()
         lbl = "Click to turn the robot"
@@ -145,7 +134,7 @@ class QiInterface(QtWidgets.QWidget):
         return gpe
 
     def _create_motion_box(self):
-        """Return for posture and movement actions"""
+        """Return box for posture and movement actions"""
         gpe = QtWidgets.QGroupBox("Motion")
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self._create_posture_box())
@@ -155,6 +144,7 @@ class QiInterface(QtWidgets.QWidget):
         return gpe
 
     def _create_speech_box(self):
+        """Create the speech box"""
         gpe = QtWidgets.QGroupBox("Speech")
         layout = QtWidgets.QHBoxLayout()
 
@@ -214,7 +204,8 @@ class QiInterface(QtWidgets.QWidget):
         layout.addWidget(pitch_combo)
 
         # Text area
-        edit = QtWidgets.QLineEdit("Pepper")
+        edit = QtWidgets.QLineEdit(r"My name is Pepper. \pau=1000\ I am a robot.")
+        edit.setMinimumWidth(300)
         edit.returnPressed.connect(
             lambda: [
                 self.execute("set_with_animation", self.anim_checkbox.isChecked()),
@@ -239,7 +230,7 @@ class QiInterface(QtWidgets.QWidget):
         layout.addWidget(QtWidgets.QLabel(lbl))
         head_controller = irt.widgets.HeadImageController(self.robot, 30)
         head_controller.position.connect(self._turn_head)
-        layout.addWidget(head_controller)
+        layout.addWidget(head_controller)  # ,alignment=QtCore.Qt.AlignHCenter)
         gpe.setLayout(layout)
         return gpe
 
@@ -267,14 +258,16 @@ class QiInterface(QtWidgets.QWidget):
         layout.addWidget(edit)
 
         paths = self.robot.get_local_image_paths()
-        images = []
-        for image_alias, image_path in paths.items():
-            btn = self._image_btn(image_alias, image_path)
-            images.append(btn)
 
-        layout.addWidget(
-            self._add_widgets_in_grid_layout(images, "Images", self.nb_images_cols)
-        )
+        if len(paths) > 0:
+            images = []
+            for image_alias, image_path in paths.items():
+                btn = self._image_btn(image_alias, image_path)
+                images.append(btn)
+
+            layout.addWidget(
+                self._add_widgets_in_grid_layout(images, "Images", self.nb_images_cols)
+            )
 
         gpe.setLayout(layout)
 
@@ -371,9 +364,10 @@ class QiInterface(QtWidgets.QWidget):
         if self.scenario_paths is not None:
             for scenario in self.scenario_paths:
                 gpes = self._load_scenario_file(scenario)
+                name = pathlib.Path(scenario).with_suffix("").stem
                 layout.addWidget(
                     self._add_widgets_in_grid_layout(
-                        gpes, "Scenario", self.nb_scenarios_cols
+                        gpes, f"Scenario: {name}", self.nb_scenarios_cols
                     ),
                 )
 
