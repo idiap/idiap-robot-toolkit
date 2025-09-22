@@ -55,3 +55,16 @@ pepper-images/
 renders the following GUI
 
 ![GUI of the Wizard-of-Oz](doc/wizard.jpg)
+
+## Using the API
+
+Folder [examples](./examples) contains some Python scripts  on how to
+use the toolkit.
+
+```python
+# NAO_IP being defined as en env variable
+robot = irt.Pepper()
+robot.wake_up()
+robot.say("Hello! I am Pepper.")
+_, frame = robot.get_frame()
+```
