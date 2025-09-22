@@ -78,9 +78,9 @@ class QiInterface(QtWidgets.QWidget):
         btn.setStyleSheet("background-color: red")
         return btn
 
-    def _create_quit_box(self):
+    def _create_general_box(self):
         """Return a group of quit and interrupt speech"""
-        gpe = QtWidgets.QGroupBox("Quit")
+        gpe = QtWidgets.QGroupBox("General")
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self._interrupt_btn())
         layout.addWidget(self._quit_btn())
@@ -353,7 +353,7 @@ class QiInterface(QtWidgets.QWidget):
         h = QtWidgets.QHBoxLayout()
 
         # Top row if quit and speech buttons
-        h.addWidget(self._create_quit_box())
+        h.addWidget(self._create_general_box())
         h.addWidget(self._create_speech_box())
         layout.addLayout(h)
 
