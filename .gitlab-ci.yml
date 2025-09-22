@@ -2,6 +2,7 @@ stages:
   - build
   - test
 
+
 .images:
   parallel:
     matrix:
@@ -35,6 +36,7 @@ build_image:
       - pyproject.toml
       - requirements.txt
 
+
 python_version:
   extends: .images
   stage: test
@@ -45,6 +47,7 @@ python_version:
     - docker
   script:
     - python3 --version
+
 
 irt_version:
   extends: .images
@@ -59,6 +62,7 @@ irt_version:
     - pip install -e .
     - python3 -c "import irt ; print(irt.__version__)"
 
+
 test_utils:
   stage: test
   image:
@@ -71,6 +75,7 @@ test_utils:
     - pip install -e .
     - python3 -m unittest tests/test_utils.py -v
 
+
 test_robot:
   stage: test
   image:
@@ -82,6 +87,7 @@ test_robot:
     - pip uninstall irt
     - pip install -e .
     - python3 -m unittest tests/test_robot.py -v
+
 
 test_fake:
   stage: test
