@@ -52,4 +52,6 @@ pepper-images/
 └── mummer-logo.png
 ```
 
+renders the following GUI
+
 ![GUI of the Wizard-of-Oz](doc/wizard.jpg)
