@@ -21,7 +21,7 @@ from .robot import factory
 from .robot import Robot
 from . import utils
 
-__all__ = ["Pepper"]
+__all__ = ["QiRobot", "Nao", "Pepper"]
 
 KNOWN_CAMERA_RESOLUTIONS = ["qqvga", "qvga", "vga", "qhd", "hd"]
 DEFAULT_IP = os.environ.get("NAO_IP", None)
@@ -188,6 +188,10 @@ class QiRobot(Robot):
         self.disable_face_traker()  # Fix bug in 2.5.5.5
 
         self.set_breathing(with_breathing)
+
+    def __repr__(self):
+        s = "Qi robot"
+        return s
 
     def robot_is_connected(self):
         """Return True if the robot is connected"""
@@ -413,6 +417,42 @@ class QiRobot(Robot):
         self.move_joint(joint_name=names, angle_in_degree=angles, time_in_sec=speed)
 
 
+def qirobot_builder(
+    name="qi",
+    ip=DEFAULT_IP,
+    port=DEFAULT_PORT,
+    top_resolution=None,
+    top_fps=DEFAULT_FPS,
+    bottom_resolution=None,
+    bottom_fps=DEFAULT_FPS,
+    language=DEFAULT_LANGUAGE,
+    tts_speed=DEFAULT_TTS_SPEED,
+    tts_pitch=DEFAULT_TTS_PITCH,
+    tts_dictionary=None,
+    with_animation=False,
+    with_breathing=False,
+    **_ignored,
+):
+    return QiRobot(
+        name=name,
+        ip=ip,
+        port=port,
+        top_resolution=top_resolution,
+        top_fps=DEFAULT_FPS,
+        bottom_resolution=bottom_resolution,
+        bottom_fps=DEFAULT_FPS,
+        language=language,
+        tts_speed=tts_speed,
+        tts_pitch=tts_pitch,
+        tts_dictionary=tts_dictionary,
+        with_animation=with_animation,
+        with_breathing=with_breathing,
+    )
+
+
+factory.register("qi", qirobot_builder)
+
+
 class Nao(QiRobot):
     """Class to control the Nao robot"""
 
@@ -534,8 +574,10 @@ class Pepper(QiRobot):
         self.tablet_service = self.session.service("ALTabletService")
 
         self.tablet_images = {}
-        for path in tablet_images:
-            self.load_tablet_images(path)
+
+        if tablet_images is not None:
+            for path in tablet_images:
+                self.load_tablet_images(path)
 
         self.tablet_mode = "image"
         self.empty_page = self.copy_empty_page()
