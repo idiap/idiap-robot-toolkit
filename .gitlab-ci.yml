@@ -64,6 +64,7 @@ irt_version:
 
 
 test_utils:
+  extends: .images
   stage: test
   image:
     name: $IMAGE_NAME
@@ -77,6 +78,7 @@ test_utils:
 
 
 test_robot:
+  extends: .images
   stage: test
   image:
     name: $IMAGE_NAME
@@ -90,6 +92,7 @@ test_robot:
 
 
 test_fake:
+  extends: .images
   stage: test
   image:
     name: $IMAGE_NAME
