@@ -13,7 +13,7 @@ import irt
 
 class TestPepper(unittest.TestCase):
     def test_init(self):
-        robot = irt.Pepper("pepper")
+        robot = irt.Pepper(name="test_pepper")
         self.assertTrue(isinstance(robot, irt.Pepper))
 
 
