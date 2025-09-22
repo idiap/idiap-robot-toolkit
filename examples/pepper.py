@@ -23,7 +23,8 @@ def main():
     robot.wake_up()
 
     robot.set_with_animation(True)
-    robot.say("Hello! I am Pepper, a social robot.")
+    level = robot.get_battery_level()
+    robot.say(f"Hello! I am Pepper, a social robot. My battery level is {level}.")
 
     # Generate an image to show on the screen
     image = np.full((800, 1280, 3), (22, 36, 219), dtype=np.uint8)
