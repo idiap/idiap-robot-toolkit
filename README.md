@@ -23,24 +23,23 @@ pip install -e .
 The `qi_robot_wizard` executable launches a GUI to control Pepper.
 
 ```bash
-qi_robot_wizard --robot pepper --name myapp --tablet pepper-images --scenario dir/yes-no.ini dir/introduction.ini
+qi_robot_wizard --robot pepper --name myapp --scenario resources/yes-no.ini --tablet resources/images/
 ```
 
-with for instance the following `dir/yes-no.ini` file
+with for instance the following `resources/yes-no.ini` file
 
 ```
 [yes]
 
-yes: Yes, indeed.
-like: Yes, I like that
-certainly: Certainly, I can do that.
+yes: Yes, indeed!
+definitely: Definitely yes!
+sure: Yes, for sure!
 
 [no]
 
-no: No, I am afraid not!
-dont-know: No, I don't know that!
-cannot: I'm afraid, I can't.
-nope: Nope
+afraid: I am afraid not!
+impossible: Unfortunately, that won't be possible
+no: Absolutely not.
 ```
 
 and the following images (which will be copied on the robot to `/home/nao/.local/share/PackageManager/apps/myapp/html`)
@@ -50,5 +49,7 @@ pepper-images/
 ├── black.png
 ├── green.png
 ├── idiap-1600.png
-└── mummer-logo.pn
+└── mummer-logo.png
 ```
+
+![GUI of the Wizard-of-Oz](doc/wizard.jpg)
