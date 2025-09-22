@@ -2,7 +2,20 @@ stages:
   - build
   - test
 
+.images:
+  parallel:
+    matrix:
+      - PYTHON_MAJOR: ["3"]
+        PYTHON_MINOR: ["10", "11"]
+  variables:
+    OUTPUT_DIR: $PYTHON_MAJOR-$PYTHON_MINOR
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$PYTHON_MAJOR-$PYTHON_MINOR
+  before_script:
+    - mkdir -p $OUTPUT_DIR
+
+
 build_image:
+  extends: .images
   stage: build
   image:
     name: docker
@@ -10,18 +23,23 @@ build_image:
     - linux
     - docker
   script:
-    - docker build --tag $CI_REGISTRY_IMAGE .
+    - echo "machine gitlab.idiap.ch" > .netrc
+    - echo "login biped" >> .netrc
+    - echo "password $BIPED_REPO" >> .netrc
+    - docker build --build-arg PYTHON_MAJOR=$PYTHON_MAJOR --build-arg PYTHON_MINOR=$PYTHON_MINOR --tag $IMAGE_NAME .
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-    - docker push $CI_REGISTRY_IMAGE
+    - docker push $IMAGE_NAME
   rules:
     - changes:
       - Dockerfile
+      - pyproject.toml
       - requirements.txt
 
 python_version:
+  extends: .images
   stage: test
   image:
-    name: $CI_REGISTRY_IMAGE
+    name: $IMAGE_NAME
   tags:
     - linux
     - docker
@@ -29,9 +47,10 @@ python_version:
     - python3 --version
 
 irt_version:
+  extends: .images
   stage: test
   image:
-    name: $CI_REGISTRY_IMAGE
+    name: $IMAGE_NAME
   tags:
     - linux
     - docker
@@ -43,7 +62,7 @@ irt_version:
 test_utils:
   stage: test
   image:
-    name: $CI_REGISTRY_IMAGE
+    name: $IMAGE_NAME
   tags:
     - linux
     - docker
@@ -55,7 +74,7 @@ test_utils:
 test_robot:
   stage: test
   image:
-    name: $CI_REGISTRY_IMAGE
+    name: $IMAGE_NAME
   tags:
     - linux
     - docker
@@ -67,7 +86,7 @@ test_robot:
 test_fake:
   stage: test
   image:
-    name: $CI_REGISTRY_IMAGE
+    name: $IMAGE_NAME
   tags:
     - linux
     - docker
