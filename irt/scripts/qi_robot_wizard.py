@@ -10,6 +10,7 @@ import argparse
 import configparser
 import pathlib
 import sys
+import time
 
 import cv2
 from loguru import logger
@@ -155,7 +156,7 @@ class QiInterface(QtWidgets.QWidget):
         name="wizard",
         nb_columns=5,
         default_language="English",
-        scenario=None,
+        scenarios=None,
     ):
         super().__init__()
 
@@ -173,7 +174,7 @@ class QiInterface(QtWidgets.QWidget):
         self.anim_checkbox = QtWidgets.QCheckBox("Animation")
         # self.anim_checkbox.setChecked(with_animation)
 
-        self.scenario_path = scenario
+        self.scenario_paths = scenarios
         self._create_gui()
 
     def execute(self, func, *args, **kwargs):
@@ -181,17 +182,14 @@ class QiInterface(QtWidgets.QWidget):
         qrun = RobotRunnable(self.robot, func, *args, **kwargs)
         QtCore.QThreadPool.globalInstance().start(qrun)
 
-    def _increment_indices(self):
-        """Increment row_id and col_id"""
-        self.col_id += 1
-        if self.col_id == self.max_nb_columns:
-            self.col_id = 0
-            self.row_id += 1
+    def _create_push_button(self, name, func):
+        """Create a push button with `name` on it executing function `func`
+        from the robot
 
-    def _new_row(self):
-        """Set id to new row"""
-        self.col_id = 0
-        self.row_id += 1
+        """
+        btn = QtWidgets.QPushButton(name, self)
+        btn.clicked.connect(lambda: self.execute(func))
+        return btn
 
     def _quit_btn(self):
         btn = QtWidgets.QPushButton("Quit", self)
@@ -215,22 +213,22 @@ class QiInterface(QtWidgets.QWidget):
         gpe.setLayout(layout)
         return gpe
 
-    def _wake_up_btn(self):
-        btn = QtWidgets.QPushButton("Wake up", self)
-        btn.clicked.connect(lambda: self.execute("wake_up"))
-        return btn
+    # def _wake_up_btn(self):
+    #     btn = QtWidgets.QPushButton("Wake up", self)
+    #     btn.clicked.connect(lambda: self.execute("wake_up"))
+    #     return btn
 
-    def _rest_btn(self):
-        btn = QtWidgets.QPushButton("Rest", self)
-        btn.clicked.connect(lambda: self.execute("rest"))
-        return btn
+    # def _rest_btn(self):
+    #     btn = QtWidgets.QPushButton("Rest", self)
+    #     btn.clicked.connect(lambda: self.execute("rest"))
+    #     return btn
 
     def _create_posture_box(self):
         """Return a group box with all general actions"""
         gpe = QtWidgets.QGroupBox("Posture")
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self._wake_up_btn())
-        layout.addWidget(self._rest_btn())
+        layout.addWidget(self._create_push_button("Wake up", "wake_up"))
+        layout.addWidget(self._create_push_button("Rest", "rest"))
         postures = self.robot.get_available_postures()
         for posture in postures:
             btn = QtWidgets.QPushButton(posture, self)
@@ -239,6 +237,44 @@ class QiInterface(QtWidgets.QWidget):
             )
             layout.addWidget(btn)
 
+        gpe.setLayout(layout)
+        return gpe
+
+    def _rotate_robot_btn(self):
+        btn = QtWidgets.QDial()
+        btn.setRange(-180, 180)
+        btn.setNotchesVisible(True)
+        btn.setValue(0)
+        # btn.sliderReleased.connect(_btn_released)
+        btn.sliderReleased.connect(
+            lambda: [
+                self.execute("move_to", x=0, y=0, theta=-btn.value()),
+                time.sleep(0.5),
+                btn.setValue(0),
+            ]
+        )
+        return btn
+
+    def _create_movement_box(self):
+        """Return teh Dial widget and center body button"""
+        gpe = QtWidgets.QGroupBox("Movement", self)
+        layout = QtWidgets.QVBoxLayout()
+        lbl = "Click to turn the robot"
+        layout.addWidget(QtWidgets.QLabel(lbl))
+        layout.addWidget(self._rotate_robot_btn())
+        layout.addWidget(
+            self._create_push_button("Center body with head", "center_body_with_head")
+        )
+        gpe.setLayout(layout)
+        return gpe
+
+    def _create_motion_box(self):
+        """Return for posture and movement actions"""
+        gpe = QtWidgets.QGroupBox("Motion")
+        layout = QtWidgets.QHBoxLayout()
+        layout.addWidget(self._create_posture_box())
+        layout.addWidget(self._create_video_head_commands_box())
+        layout.addWidget(self._create_movement_box())
         gpe.setLayout(layout)
         return gpe
 
@@ -331,19 +367,6 @@ class QiInterface(QtWidgets.QWidget):
         gpe.setLayout(layout)
         return gpe
 
-    def _show_image_btn(self, btn_name, image_alias):
-        """Button to show an image
-
-        Args:
-            btn_name: Name of the button
-            image_alias: Image identifier associated to the image path
-
-        """
-        btn = QtWidgets.QPushButton(btn_name, self)
-        image_path = path
-        btn.clicked.connect(lambda: self.execute("show_image", image_alias=image))
-        return btn
-
     def _image_btn(self, image_alias, image_path):
         pixmap = QtGui.QPixmap(image_path)
         pixmap = pixmap.scaledToHeight(64, QtCore.Qt.SmoothTransformation)
@@ -356,7 +379,7 @@ class QiInterface(QtWidgets.QWidget):
     def _create_tablet_box(self):
         """Return a group box with tablet actions"""
 
-        gpe = QtWidgets.QGroupBox("Images")
+        gpe = QtWidgets.QGroupBox("Tablet")
         layout = QtWidgets.QVBoxLayout()
 
         edit = QtWidgets.QLineEdit("Print me on the tablet")
@@ -405,6 +428,10 @@ class QiInterface(QtWidgets.QWidget):
         Name of button 2 = The longer text that will be said when button 2 is clicked
 
         """
+        if not pathlib.Path(filename).is_file():
+            logger.error(f"Expect {filename} to be a file")
+            return []
+
         config = configparser.ConfigParser()
         config.optionxform = str
         config.read(filename)
@@ -414,11 +441,28 @@ class QiInterface(QtWidgets.QWidget):
             vbox = QtWidgets.QVBoxLayout()
             for key, val in config.items(section):
                 vbox.addWidget(self._add_say_btn(val, key))
+            vbox.addStretch()
             gpe = QtWidgets.QGroupBox(section)
             gpe.setLayout(vbox)
             gpes.append(gpe)
 
         return gpes
+
+    def _add_widgets_in_grid_layout(self, widgets, name, max_nb_cols=10):
+        """Add the widgets in a grid layout with a maximum number of columns"""
+        gpe = QtWidgets.QGroupBox(name)
+        layout = QtWidgets.QGridLayout()
+
+        row_id, col_id = 0, 0
+        for widget in widgets:
+            layout.addWidget(widget, row_id, col_id)
+            col_id += 1
+            if col_id >= max_nb_cols:
+                col_id = 0
+                row_id += 1
+
+        gpe.setLayout(layout)
+        return gpe
 
     def _create_gui(self):
         self.setWindowTitle("Qi robot Wizard of Oz")
@@ -468,39 +512,40 @@ class QiInterface(QtWidgets.QWidget):
         # Test vertical layout
         layout = QtWidgets.QVBoxLayout(self)
         h = QtWidgets.QHBoxLayout()
+
+        # Top row if quit and speech buttons
         h.addWidget(self._create_quit_box())
         h.addWidget(self._create_speech_box())
         layout.addLayout(h)
 
-        layout.addWidget(self._create_video_head_commands_box())
+        # layout.addWidget(self._create_video_head_commands_box())
+        layout.addWidget(self._create_motion_box())
 
         layout.addWidget(self._create_tablet_box())
 
-        if (
-            self.scenario_path is not None
-            and pathlib.Path(self.scenario_path).is_file()
-        ):
-            h = QtWidgets.QHBoxLayout()
-            gpes = self._load_scenario_file(self.scenario_path)
-            for gpe in gpes:
-                h.addWidget(gpe)
-        layout.addLayout(h)
+        if self.scenario_paths is not None:
+            for scenario in self.scenario_paths:
+                gpes = self._load_scenario_file(scenario)
+                layout.addWidget(self._add_widgets_in_grid_layout(gpes, "Scenario"))
 
         self.setLayout(layout)
 
 
 def main():
     parser = argparse.ArgumentParser()
+    # fmt: off
     irt.robot.add_parser_options(parser, default_robot="pepper")
     parser.add_argument(
-        "--scenario", type=str, default=None, help="File .ini of buttons"
+        "--scenarios", type=str, default=None, nargs="+",
+        help="List of .ini files to trigger speech"
     )
+    # fmt: on
     args = parser.parse_args()
 
     robot = irt.robot.build_robot_from_args(args)
 
     app = QtWidgets.QApplication(sys.argv)
-    gui = QiInterface(robot, scenario=args.scenario)
+    gui = QiInterface(robot, scenarios=args.scenarios)
     gui.show()
     sys.exit(app.exec())
 
