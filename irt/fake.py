@@ -16,8 +16,6 @@ from .robot import Robot
 
 DEFAULT_CAMERA = 0
 
-__all__ = ["FakeRobot"]
-
 
 class FakeRobot(Robot):
     """A class to emulate a Robot with a webcam"""

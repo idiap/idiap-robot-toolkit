@@ -8,8 +8,6 @@
 
 import os
 
-__all__ = ["Robot"]
-
 
 class Robot:
     """Base class for all robots in the package"""

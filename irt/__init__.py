@@ -10,8 +10,10 @@ import importlib.metadata
 
 __version__ = importlib.metadata.version("irt")
 
-from . import fake as fake
-from . import qirobots as qirobots
-from . import robot as robot
+from .fake import FakeRobot as FakeRobot
+from .qirobots import QiRobot as QiRobot
+from .qirobots import Nao as Nao
+from .qirobots import Pepper as Pepper
+from .robot import Robot as Robot
 from . import utils as utils
 from . import widgets as widgets

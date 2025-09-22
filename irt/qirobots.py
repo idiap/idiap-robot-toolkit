@@ -21,7 +21,6 @@ from .robot import factory
 from .robot import Robot
 from . import utils
 
-__all__ = ["QiRobot", "Nao", "Pepper"]
 
 KNOWN_CAMERA_RESOLUTIONS = ["qqvga", "qvga", "vga", "qhd", "hd"]
 DEFAULT_IP = os.environ.get("NAO_IP", None)
