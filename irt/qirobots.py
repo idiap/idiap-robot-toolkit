@@ -339,6 +339,20 @@ class QiRobot(Robot):
         logger.info("Resting")
         self.motion_service.rest()
 
+    def move_to(self, x=0.0, y=0.0, theta=0.0):
+        """Move to
+
+        Args:
+            x     :
+            y     :
+            theta : In degree
+
+        """
+        if not self.robot_is_connected():
+            return
+        logger.info(f"Moving to {x} {y} {theta}")
+        self.motion_service.moveTo(x, y, theta * utils.TO_RAD)
+
     def get_available_postures(self):
         """Return a list of available postures"""
         return self.posture_service.getPostureList()
@@ -591,10 +605,12 @@ class Pepper(QiRobot):
         root = pathlib.Path(__file__).parent.parent
         local_empty_page = root / "resources" / "empty.html"
 
-        directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}"
-        cmd = f"mkdir -p {directory_on_robot}"
-        path_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html/empty.html"
+        directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html"
 
+        cmd = f"mkdir -p {directory_on_robot}"
+        utils.run_command_on_host(NAO, self.ip, cmd)
+
+        path_on_robot = f"{directory_on_robot}/empty.html"
         utils.copy_file_on_host(NAO, self.ip, local_empty_page, path_on_robot)
 
         path_on_usb_server = f"{USB_SERVER}/{self.name}/empty.html"
@@ -701,6 +717,38 @@ class Pepper(QiRobot):
         self.tablet_service.showImage(path)
 
         self.tablet_mode = "image"
+
+    def center_body_with_head(self):
+        """Turn body and head in opposite direction so that the head and body
+        are aligned but facing the original line of sight
+
+        """
+        if not self.robot_is_connected():
+            return
+
+        yaw = self.motion_service.getAngles(["HeadYaw"], 1)
+
+        if len(yaw) > 0:
+            yaw = yaw[0] * utils.TO_DEG
+        else:
+            logger.error("Problem to get the yaw")
+            return
+
+        angle_to_turn = -yaw
+        time_in_sec = 2.0
+        logger.info(f"Yaw is {yaw} deg head time is {time_in_sec}")
+
+        joint_name = ["HeadYaw", "HeadPitch"]
+        angle = [angle_to_turn * utils.TO_RAD, 0]
+        times_in_sec = [time_in_sec, time_in_sec]
+        is_absolute = False
+
+        # Both functions will be run "roughly together"
+        self.motion_service.moveTo(0, 0, -angle_to_turn * utils.TO_RAD, _async=True)
+
+        self.motion_service.angleInterpolation(
+            joint_name, angle, times_in_sec, is_absolute
+        )
 
 
 def pepper_builder(
