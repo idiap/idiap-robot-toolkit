@@ -60,8 +60,8 @@ class RobotFactory:
     def available(self):
         return list(self._builders.keys())
 
-    def create(self, name, **kwargs):
-        builder_key = name
+    def create(self, robot, **kwargs):
+        builder_key = robot
         builder = self._builders.get(builder_key)
 
         if not builder:
@@ -82,7 +82,11 @@ def add_parser_options(
     g.add_argument(
         "--robot", type=str, default=default_robot,
         choices=factory.available(),
-        help="Name of the robot to use"
+        help="Robot to use"
+    )
+    g.add_argument(
+        "--name", type=str, default="robot",
+        help="Name given to the robot or the application"
     )
     g.add_argument(
         "--ip", type=str, default=os.environ.get("NAO_IP", None),
@@ -133,7 +137,8 @@ def add_parser_options(
 
 def build_robot_from_args(args):
     kwargs = {
-        "name": args.robot,
+        "robot": args.robot,
+        "name": args.name,
         "ip": args.ip,
         "port": args.port,
         "top_resolution": args.top_resolution,
