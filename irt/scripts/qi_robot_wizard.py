@@ -154,9 +154,10 @@ class QiInterface(QtWidgets.QWidget):
         self,
         robot,
         name="wizard",
-        nb_columns=5,
         default_language="English",
         scenarios=None,
+        nb_scenarios_cols=10,
+        nb_images_cols=6,
     ):
         super().__init__()
 
@@ -166,13 +167,10 @@ class QiInterface(QtWidgets.QWidget):
         self.robot = robot
         self.name = name
         self.default_language = default_language
-        # To display groups
-        self.col_id = 0
-        self.row_id = 0
-        self.max_nb_columns = nb_columns
+        self.nb_scenarios_cols = nb_scenarios_cols
+        self.nb_images_cols = nb_images_cols
 
         self.anim_checkbox = QtWidgets.QCheckBox("Animation")
-        # self.anim_checkbox.setChecked(with_animation)
 
         self.scenario_paths = scenarios
         self._create_gui()
@@ -390,13 +388,16 @@ class QiInterface(QtWidgets.QWidget):
         )
         layout.addWidget(edit)
 
-        images = QtWidgets.QHBoxLayout()
         paths = self.robot.get_local_image_paths()
+        images = []
         for image_alias, image_path in paths.items():
             btn = self._image_btn(image_alias, image_path)
-            images.addWidget(btn)
+            images.append(btn)
 
-        layout.addLayout(images)
+        layout.addWidget(
+            self._add_widgets_in_grid_layout(images, "Images", self.nb_images_cols)
+        )
+
         gpe.setLayout(layout)
 
         return gpe
@@ -424,8 +425,8 @@ class QiInterface(QtWidgets.QWidget):
 
         [name of the section]
 
-        Name of button 1 = Text to say when the button is clicked
-        Name of button 2 = The longer text that will be said when button 2 is clicked
+        Name of button 1: Text to say when the button is clicked
+        Name of button 2: The longer text that will be said when button 2 is clicked
 
         """
         if not pathlib.Path(filename).is_file():
@@ -449,7 +450,15 @@ class QiInterface(QtWidgets.QWidget):
         return gpes
 
     def _add_widgets_in_grid_layout(self, widgets, name, max_nb_cols=10):
-        """Add the widgets in a grid layout with a maximum number of columns"""
+        """Add the widgets in a grid layout with a maximum number of columns
+
+        Args:
+
+          widgets (list[QtWidgets]): List of widgets to add to the grid
+          name (str): Name of the QGroupBox
+          max_nb_cols (int): Maximum number of widgets on each row of the layout
+
+        """
         gpe = QtWidgets.QGroupBox(name)
         layout = QtWidgets.QGridLayout()
 
@@ -465,51 +474,10 @@ class QiInterface(QtWidgets.QWidget):
         return gpe
 
     def _create_gui(self):
+        """Function creating the GUI"""
+
         self.setWindowTitle("Qi robot Wizard of Oz")
-        # layout = QtWidgets.QGridLayout(self)
 
-        # layout.addWidget(
-        #     self._create_speech_box(), self.row_id, self.col_id, 1, self.max_nb_columns
-        # )
-
-        # self._new_row()
-
-        # layout.addWidget(
-        #     self._create_video_head_commands_box(),
-        #     self.row_id,
-        #     self.col_id,
-        #     1,
-        #     self.max_nb_columns,
-        # )
-
-        # self._new_row()
-
-        # layout.addWidget(self._create_quit_box(), self.row_id, self.col_id)
-
-        # self._increment_indices()
-
-        # layout.addWidget(self._create_posture_box(), self.row_id, self.col_id)
-
-        # self._increment_indices()
-
-        # if hasattr(self.robot, "image_paths") and len(self.robot.image_paths) > 0:
-        #     layout.addWidget(self._create_tablet_box(), self.row_id, self.col_id)
-        #     self._increment_indices()
-
-        # self._new_row()
-
-        # if (
-        #     self.scenario_path is not None
-        #     and pathlib.Path(self.scenario_path).is_file()
-        # ):
-        #     self._new_row()
-        #     gpes = self._load_scenario_file(self.scenario_path)
-        #     for gpe in gpes:
-        #         layout.addWidget(gpe, self.row_id, self.col_id)
-        #         self._increment_indices()
-
-        ##################################################
-        # Test vertical layout
         layout = QtWidgets.QVBoxLayout(self)
         h = QtWidgets.QHBoxLayout()
 
@@ -518,7 +486,6 @@ class QiInterface(QtWidgets.QWidget):
         h.addWidget(self._create_speech_box())
         layout.addLayout(h)
 
-        # layout.addWidget(self._create_video_head_commands_box())
         layout.addWidget(self._create_motion_box())
 
         layout.addWidget(self._create_tablet_box())
@@ -526,7 +493,11 @@ class QiInterface(QtWidgets.QWidget):
         if self.scenario_paths is not None:
             for scenario in self.scenario_paths:
                 gpes = self._load_scenario_file(scenario)
-                layout.addWidget(self._add_widgets_in_grid_layout(gpes, "Scenario"))
+                layout.addWidget(
+                    self._add_widgets_in_grid_layout(
+                        gpes, "Scenario", self.nb_scenarios_cols
+                    ),
+                )
 
         self.setLayout(layout)
 
@@ -539,13 +510,27 @@ def main():
         "--scenarios", type=str, default=None, nargs="+",
         help="List of .ini files to trigger speech"
     )
+    parser.add_argument(
+        "--nb-scenarios-cols", type=int, default=10,
+        help="Number of columns for the scenario buttons"
+    )
+    parser.add_argument(
+        "--nb-images-cols", type=int, default=6,
+        help="Number of columns for the tablet image buttons"
+    )
+
     # fmt: on
     args = parser.parse_args()
 
     robot = irt.robot.build_robot_from_args(args)
 
     app = QtWidgets.QApplication(sys.argv)
-    gui = QiInterface(robot, scenarios=args.scenarios)
+    gui = QiInterface(
+        robot,
+        scenarios=args.scenarios,
+        nb_scenarios_cols=args.nb_scenarios_cols,
+        nb_images_cols=args.nb_images_cols,
+    )
     gui.show()
     sys.exit(app.exec())
 
