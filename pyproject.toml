@@ -30,6 +30,7 @@ dynamic = ["dependencies"]
 
 [project.scripts]
 qi_robot_wizard = "irt.scripts.qi_robot_wizard:main"
+run_robot_func = "irt.scripts.run_robot_func:main"
 
 [tool.setuptools]
 packages = ["irt"]
