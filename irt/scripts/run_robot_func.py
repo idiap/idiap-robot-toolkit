@@ -23,8 +23,8 @@ def main():
         help="Function to call"
     )
     parser.add_argument(
-        "-k", "--kwargs", type=str,
-        help="Keywords arguments"
+        "kwargs", type=str, nargs=argparse.REMAINDER,
+        help='Keywords arguments (following key=value, like n=3, or x=1.3, or location="(32, 4)")'
     )
     # fmt: on
     args = parser.parse_args()
@@ -35,9 +35,21 @@ def main():
     robot = irt.robot.build_robot_from_args(args)
 
     func = args.func
+
+    posargs, kwargs = [], {}
+
+    for p in args.kwargs:
+        if "=" in p:
+            key, val = p.split("=", 1)
+            kwargs[key] = irt.utils.auto_cast(val)
+        else:
+            posargs.append(p)
+
     if hasattr(robot, func):
         func = getattr(robot, func)
-        func()
+        output = func(*posargs, **kwargs)
+        if output is not None:
+            print(f"{args.func}: {output}")
 
 
 if __name__ == "__main__":
