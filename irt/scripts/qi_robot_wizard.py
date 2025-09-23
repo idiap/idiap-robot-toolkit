@@ -375,8 +375,8 @@ class QiInterface(QtWidgets.QWidget):
 
 
 def main():
-    parser = argparse.ArgumentParser()
     # fmt: off
+    parser = argparse.ArgumentParser()
     irt.robot.add_parser_options(parser, default_robot="pepper")
     parser.add_argument(
         "--scenarios", type=str, default=None, nargs="+",
