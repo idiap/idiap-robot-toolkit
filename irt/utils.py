@@ -6,6 +6,7 @@
 #
 # This file is part of the irt package
 
+import ast
 import collections
 import math
 import pathlib
@@ -117,3 +118,18 @@ def list_directory(dirname, extensions=None):
         filenames = [f for f in filenames if pathlib.Path(f).suffix in extensions]
     filenames.sort()
     return filenames
+
+
+def auto_cast(value: str):
+    v = value.strip().lower()
+    if v in ("true", "yes", "on"):
+        return True
+    if v in ("false", "no", "off"):
+        return False
+    if v in ("none", "null"):
+        return None
+
+    try:
+        return ast.literal_eval(value)
+    except (ValueError, SyntaxError):
+        return value
