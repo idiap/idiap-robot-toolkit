@@ -43,6 +43,56 @@ class TestFPS(unittest.TestCase):
         self.assertTrue(math.isclose(fps(), expected, abs_tol=0.3))
 
 
+class TestAutoCast(unittest.TestCase):
+    def test_int(self):
+        """Test casting an integer"""
+        s = "3"
+        i = irt.utils.auto_cast(s)
+        self.assertTrue(isinstance(i, int))
+        self.assertEqual(i, 3)
+
+    def test_float(self):
+        """Test casting a float"""
+        s = "3.14"
+        f = irt.utils.auto_cast(s)
+        self.assertTrue(isinstance(f, float))
+        self.assertEqual(f, 3.14)
+
+    def test_string(self):
+        """Test casting a string"""
+        s = "/path/to/file.png"
+        p = irt.utils.auto_cast(s)
+        self.assertTrue(isinstance(p, str))
+        self.assertEqual(p, "/path/to/file.png")
+
+    def test_tuple(self):
+        """Test casting a tuple"""
+        s = "(123, 3.14)"
+        t = irt.utils.auto_cast(s)
+        self.assertTrue(isinstance(t, tuple))
+        self.assertTrue(isinstance(t[0], int))
+        self.assertTrue(isinstance(t[1], float))
+        self.assertEqual(t, (123, 3.14))
+
+    def test_list(self):
+        """Test casting a list"""
+        s = "[123, 3.14]"
+        t = irt.utils.auto_cast(s)
+        self.assertTrue(isinstance(t, list))
+        self.assertTrue(isinstance(t[0], int))
+        self.assertTrue(isinstance(t[1], float))
+        self.assertEqual(t, [123, 3.14])
+
+    def test_dict(self):
+        """Test casting a dictionnary"""
+        s = "{'name': 'pepper', 'age': 8}"
+        d = irt.utils.auto_cast(s)
+        self.assertTrue(isinstance(d, dict))
+        self.assertTrue(isinstance(d["name"], str))
+        self.assertTrue(isinstance(d["age"], int))
+        self.assertEqual(d, {"name": "pepper", "age": 8})
+
+
 # Fail on Gitlab
 # class TestPing(unittest.TestCase):
 #     def test_localhost(self):
