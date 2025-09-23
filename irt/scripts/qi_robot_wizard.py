@@ -20,6 +20,25 @@ from qtpy import QtWidgets
 import irt
 
 
+description = """GUI to control a robot"""
+
+epilog = """examples:
+
+Minimal launch to control posture, speech, head
+
+  $ qi_robot_wizard --robot pepper
+
+Add images to display on the table
+
+  $ qi_robot_wizard --robot pepper --tablet-images path/to/image/dir
+
+Add speech buttons with predifined text to say
+
+  $ qi_robot_wizard --robot pepper --scenario path/to/file.ini
+
+"""
+
+
 def get_app_path_on_robot(name):
     path = "/home/nao/.local/share/PackageManager/apps/{name}/"
     return path
@@ -375,8 +394,12 @@ class QiInterface(QtWidgets.QWidget):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=description,
+        epilog=epilog,
+    )
     # fmt: off
-    parser = argparse.ArgumentParser()
     irt.robot.add_parser_options(parser, default_robot="pepper")
     parser.add_argument(
         "--scenarios", type=str, default=None, nargs="+",

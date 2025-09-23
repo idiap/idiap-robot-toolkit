@@ -13,10 +13,11 @@ description = """Call a function from the robot"""
 
 epilog = """examples:
 
-  $ run_robot_func.py -f wake_up
-  $ run_robot_func.py -f say "Hello, I am a robot"
-  $ run_robot_func.py -f move_to theta=10
-  $ run_robot_func.py -f look_at coordinates="(0, -20)" resolution="(480, 640)"
+  $ run_robot_func.py --robot pepper -f wake_up
+  $ run_robot_func.py --robot pepper -f say "Hello, I am a robot"
+  $ run_robot_func.py --robot pepper -f move_to theta=10
+  $ run_robot_func.py --robot pepper -f look_at coordinates="(0, -20)" resolution="(480, 640)"
+  $ run_robot_func.py --robot fake -f get_frame
 
 """
 
