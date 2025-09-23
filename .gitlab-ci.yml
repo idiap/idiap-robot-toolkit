@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - deploy
 
 
 .images:
@@ -103,3 +104,19 @@ test_fake:
     - pip uninstall irt
     - pip install -e .
     - python3 -m unittest tests/test_fake.py -v
+
+
+deploy:
+  stage: deploy
+  image:
+    name: squidfunk/mkdocs-material:latest
+    entrypoint: ["/bin/sh", "-c"]
+  tags:
+    - linux
+    - docker
+  script:
+    - mkdocs build --site-dir public
+  pages: true
+  artifacts:
+    paths:
+      - public
