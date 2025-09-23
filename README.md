@@ -1,4 +1,4 @@
-<img src="./doc/banner.jpg" alt="" width="100%"/>
+<img src="./docs/assets/images/banner.jpg" alt="" width="100%"/>
 
 # Idiap Robot Toolkit
 
@@ -54,7 +54,7 @@ pepper-images/
 
 renders the following GUI
 
-![GUI of the Wizard-of-Oz](doc/wizard.jpg)
+![GUI of the Wizard-of-Oz](docs/assets/images/wizard.jpg)
 
 ## Using the API
 
