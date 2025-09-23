@@ -9,10 +9,25 @@ import pathlib
 
 import irt
 
+description = """Call a function from the robot"""
+
+epilog = """examples:
+
+  $ run_robot_func.py -f wake_up
+  $ run_robot_func.py -f say "Hello, I am a robot"
+  $ run_robot_func.py -f move_to theta=10
+  $ run_robot_func.py -f look_at coordinates="(0, -20)" resolution="(480, 640)"
+
+"""
+
 
 def main():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=description,
+        epilog=epilog,
+    )
     # fmt: off
-    parser = argparse.ArgumentParser()
     irt.robot.add_parser_options(parser, default_robot="pepper")
     parser.add_argument(
         "--output-dir", type=str, default="rm-output",
