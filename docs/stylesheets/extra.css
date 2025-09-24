@@ -1,8 +1,8 @@
 :root > * {
-  --md-typeset-a-color: black;
-  --md-footer-fg-color: hsla(0, 0%, 100%, 1);
-  --md-footer-fg-color--light: hsla(0, 0%, 100%, 0.7);
-  --md-footer-fg-color--lighter: hsla(0, 0%, 100%, 0.3);
-  --md-footer-bg-color: black;
-  --md-footer-bg-color--dark: hotppink;
+    --md-typeset-a-color: var(--md-primary-a-color);
+    --md-footer-fg-color: var(--md-primary-bg-color);
+    --md-footer-fg-color--light: var(--md-primary-bg-color--light);
+    --md-footer-fg-color--lighter: var(--md-primary-bg-color--lighter);
+    --md-footer-bg-color: var(--md-primary-fg-color);
+    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
 }
