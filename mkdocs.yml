@@ -43,6 +43,7 @@ theme:
 nav:
   - "Home": README.md
   - "Wizard-of-Oz": wizard-of-oz.md
+  - "Factory": factory.md
   - "Qi-Robots": qirobots.md
 
 markdown_extensions:
