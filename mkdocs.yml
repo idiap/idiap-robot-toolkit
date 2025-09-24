@@ -87,6 +87,19 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
+extra:
+  generator: true
+  social:
+    - icon: fontawesome/solid/phone
+      link: tel:0041277217711
+    - icon: fontawesome/regular/envelope
+      link: https://www.idiap.ch/en/idiap-contact-form
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/@IdiapCh/videos
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/Idiap_ch
+
+
 extra_css:
   - stylesheets/extra.css
 
