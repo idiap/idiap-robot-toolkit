@@ -1,5 +1,4 @@
 :root > * {
-    --md-typeset-a-color: var(--md-primary-a-color);
     --md-footer-fg-color: var(--md-primary-bg-color);
     --md-footer-fg-color--light: var(--md-primary-bg-color--light);
     --md-footer-fg-color--lighter: var(--md-primary-bg-color--lighter);
