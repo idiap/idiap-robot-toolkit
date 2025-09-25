@@ -201,7 +201,10 @@ class QiRobot(Robot):
             return True
 
     def get_battery_level(self):
-        return self.battery_service.getBatteryCharge()
+        if not self.robot_is_connected():
+            return 0
+        else:
+            return self.battery_service.getBatteryCharge()
 
     def disable_face_traker(self):
         """Work around to stop tracker when the robot tracks on its own"""
@@ -354,7 +357,10 @@ class QiRobot(Robot):
 
     def get_available_postures(self):
         """Return a list of available postures"""
-        return self.posture_service.getPostureList()
+        postures = []
+        if self.robot_is_connected():
+            postures = self.posture_service.getPostureList()
+        return postures
 
     def go_to_posture(self, name, speed=0.5):
         """Move the robot in the input posture `name`"""
@@ -587,6 +593,8 @@ class Pepper(QiRobot):
             with_animation=with_animation,
             with_breathing=with_breathing,
         )
+        self.tablet_images = {}
+        self.empty_page = None
 
         if not utils.is_reachable(ip):
             logger.warning(f"Destination host unreachable '{ip}'")
@@ -594,8 +602,6 @@ class Pepper(QiRobot):
 
         # Tablet service
         self.tablet_service = self.session.service("ALTabletService")
-
-        self.tablet_images = {}
 
         if tablet_images is not None:
             if isinstance(tablet_images, (str, pathlib.PurePath)):
