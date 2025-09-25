@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: See LICENSE file
 
 import cv2
+import numpy as np
 from loguru import logger
 from qtpy import QtCore
 from qtpy import QtGui
@@ -117,9 +118,13 @@ class HeadImageController(QtWidgets.QGraphicsView):
     def timerEvent(self, event):
         """Called periodically. Retrieve a nao image, and update the widget."""
 
-        success, cv2_image = self.robot.get_frame()
-        cv2_image = cv2.resize(cv2_image, (self.width, self.height))
-        cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
+        try:
+            _, cv2_image = self.robot.get_frame()
+            cv2_image = cv2.resize(cv2_image, (self.width, self.height))
+            cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
+        except Exception:
+            cv2_image = np.full((self.height, self.width, 3), 0, dtype=np.uint8)
+
         self.cv2_image = cv2_image
         self.image = QtGui.QImage(
             cv2_image.data,
