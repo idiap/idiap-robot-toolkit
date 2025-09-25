@@ -589,6 +589,8 @@ class Pepper(QiRobot):
         self.tablet_images = {}
 
         if tablet_images is not None:
+            if isinstance(tablet_images, (str, pathlib.PurePath)):
+                tablet_images = [tablet_images]
             for path in tablet_images:
                 self.load_tablet_images(path)
 
@@ -666,10 +668,13 @@ class Pepper(QiRobot):
                     self.add_image(alias, filename)
 
         elif pathlib.Path(path).suffix == ".yaml":
+            root = pathlib.Path(path).parent
+            logger.info(f"Loading images from {root}")
             with open(path) as f:
                 paths = yaml.load(f, Loader=yaml.SafeLoader)
 
                 for alias, image_path in paths.items():
+                    image_path = root / image_path
                     self.add_image(alias, image_path)
 
     def add_image(self, key, path):
