@@ -44,8 +44,8 @@ class FPS:
         return fps
 
 
-def ping(server, port=22, timeout=3):
-    """Ping server
+def is_reachable(server, port=22, timeout=3):
+    """Check if IP address is reachable
 
     Take from: https://stackoverflow.com/a/67217558
     """

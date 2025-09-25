@@ -115,7 +115,7 @@ class QiRobot(Robot):
 
         self.session = qi.Session()
 
-        if not utils.ping(ip):
+        if not utils.is_reachable(ip):
             logger.warning(f"Destination host unreachable '{ip}'")
             return
 

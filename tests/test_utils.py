@@ -94,10 +94,10 @@ class TestAutoCast(unittest.TestCase):
 
 
 # Fail on Gitlab
-# class TestPing(unittest.TestCase):
+# class TestIsReachable(unittest.TestCase):
 #     def test_localhost(self):
 #         """Test pinging localhost"""
-#         result = irt.utils.ping("127.0.0.1")
+#         result = irt.utils.is_reachable("127.0.0.1")
 #         self.assertTrue(result)
 
 
