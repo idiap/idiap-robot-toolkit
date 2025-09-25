@@ -121,9 +121,20 @@ class HeadImageController(QtWidgets.QGraphicsView):
         try:
             _, cv2_image = self.robot.get_frame()
             cv2_image = cv2.resize(cv2_image, (self.width, self.height))
-            cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
         except Exception:
             cv2_image = np.full((self.height, self.width, 3), 0, dtype=np.uint8)
+            msg = "No frame grabbed"
+            cv2.putText(
+                cv2_image,
+                msg,
+                (5, self.height // 2),
+                color=(0, 0, 255),
+                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                fontScale=1,
+                thickness=1,
+            )
+
+        cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
 
         self.cv2_image = cv2_image
         self.image = QtGui.QImage(
