@@ -15,6 +15,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.instant.progress
+    - content.code.copy
   font:
     text: Open Sans
   icon:
