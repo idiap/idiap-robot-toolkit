@@ -501,6 +501,10 @@ class Nao(QiRobot):
             with_breathing=with_breathing,
         )
 
+        if not utils.is_reachable(ip):
+            logger.warning(f"Destination host unreachable '{ip}'")
+            return
+
     def __repr__(self):
         s = "Nao robot"
         return s
@@ -583,6 +587,11 @@ class Pepper(QiRobot):
             with_animation=with_animation,
             with_breathing=with_breathing,
         )
+
+        if not utils.is_reachable(ip):
+            logger.warning(f"Destination host unreachable '{ip}'")
+            return
+
         # Tablet service
         self.tablet_service = self.session.service("ALTabletService")
 
