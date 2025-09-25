@@ -11,6 +11,12 @@ from qtpy import QtCore
 from qtpy import QtGui
 from qtpy import QtWidgets
 
+RED = "#F10000"
+ORANGE = "#FF8000"
+GOLD = "#FED502"
+LIME = "#B4DA01"
+GREEN = "#3FAA00"
+
 
 class RobotRunnable(QtCore.QRunnable):
     """Interface to call all functions from the robot in a separate thread"""
@@ -61,15 +67,15 @@ class BatteryWidget(QtWidgets.QWidget):
         self.progress.setValue(level)
 
         if level < 10:
-            color = "#F10000"
+            color = RED
         elif level < 25:
-            color = "#FF8000"
+            color = ORANGE
         elif level < 50:
-            color = "#FED502"
+            color = GOLD
         elif level < 75:
-            color = "#B4DA01"
+            color = LIME
         else:
-            color = "#3FAA00"
+            color = GREEN
 
         self.progress.setStyleSheet(f"""
             QProgressBar {{
