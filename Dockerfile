@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: Copyright 2024-2025 Idiap Research Institute <contact@idiap.ch>
+# SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
+# SPDX-License-Identifier: See LICENSE
+#
+# This file is part of the irt package
+
 ARG PYTHON_MAJOR="3"
 ARG PYTHON_MINOR="12"
 
