@@ -4,10 +4,10 @@
 #
 # This file is part of the irt package
 
+PySide6
 loguru
 numpy
 opencv-python
 pyyaml
 qi
-PySide6
 qtpy
