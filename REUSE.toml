@@ -15,7 +15,7 @@ SPDX-Comment = "Photo of Idiap building (from Wikimedia Commons). Source: https:
 path = "docs/assets/images/wizard.jpg"
 precedence = "override"
 SPDX-FileCopyrightText = "2025 Idiap Research Institute"
-SPDX-License-Identifier = "CC-BY-4.0"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
 SPDX-Comment = "Screenshot of the Wizard-of-Oz"
 
 [[annotations]]
@@ -24,3 +24,24 @@ precedence = "override"
 SPDX-FileCopyrightText = "2007 Idiap Research Institute"
 SPDX-License-Identifier = "CC-BY-4.0"
 SPDX-Comment = "Favicon of the Idiap Research Institute"
+
+[[annotations]]
+path = "resources/images/*.png"
+precedence = "override"
+SPDX-FileCopyrightText = "2025 Idiap Research Institute"
+SPDX-License-Identifier = "CC0-1.0"
+SPDX-Comment = "Images"
+
+[[annotations]]
+path = "resources/dictionary_en.txt"
+precedence = "override"
+SPDX-FileCopyrightText = "2025 Idiap Research Institute"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+SPDX-Comment = "Dictionary for pronounciation with NAO robots"
+
+[[annotations]]
+path = "overrides/.icons/idiap/logo-*.svg"
+precedence = "override"
+SPDX-FileCopyrightText = "2007 Idiap Research Institute"
+SPDX-License-Identifier = "CC-BY-4.0"
+SPDX-Comment = "Icon of the Idiap Research Institute"
