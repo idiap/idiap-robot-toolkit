@@ -4,6 +4,7 @@
 
 stages:
   - build
+  - qa
   - test
   - deploy
 
@@ -40,6 +41,18 @@ build_image:
       - Dockerfile
       - pyproject.toml
       - requirements.txt
+
+
+reuse:
+  stage: qa
+  image:
+    name: fsfe/reuse:latest
+    entrypoint: [""]
+  tags:
+    - linux
+    - docker
+  script:
+    - reuse lint
 
 
 python_version:
