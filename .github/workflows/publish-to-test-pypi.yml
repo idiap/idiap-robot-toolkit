@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Idiap Research Institute <contact@idiap.ch>
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
 # SPDX-FileContributor: Yannick Dayer <yannick.dayer@idiap.ch>
-# SPDX-License-Identifier: See LICENSE file
+# SPDX-License-Identifier: MIT
 
 name: Publish Python distribution to TestPyPI
 
