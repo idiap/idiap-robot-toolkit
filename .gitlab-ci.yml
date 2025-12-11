@@ -135,4 +135,5 @@ reuse:
     - linux
     - docker
   script:
+    - git clean -dfx # Remove artifacts from previous jobs
     - reuse lint
