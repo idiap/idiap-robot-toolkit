@@ -1,0 +1,3 @@
+username: "nao"
+usb_server: "http://198.18.0.1/apps"
+app_prefix: "/home/nao/.local/share/PackageManager/apps"
