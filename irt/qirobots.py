@@ -21,6 +21,7 @@ from . import utils
 
 
 KNOWN_CAMERA_RESOLUTIONS = ["qqvga", "qvga", "vga", "qhd", "hd"]
+DEFAULT_CONFIG = pathlib.Path(__file__).parent / "configs" / "qi.yaml"
 DEFAULT_IP = os.environ.get("NAO_IP", None)
 DEFAULT_PORT = "9559"
 DEFAULT_FPS = 30
@@ -33,11 +34,8 @@ DEFAULT_TTS_PITCH = 100
 DEFAULT_TTS_PITCH_SHIFT = 1.1
 VOICE_STYLES = ("neutral", "joyful", "didactic")
 
-NAO = "nao"  # Linux username
-USB_SERVER = "http://198.18.0.1/apps"
 TABLET_HEIGHT = 800
 TABLET_WIDTH = 1280
-NAO_APP_PREFIX = "/home/nao/.local/share/PackageManager/apps"
 
 
 class CameraIndex(enum.IntEnum):
@@ -105,6 +103,7 @@ class QiRobot(Robot):
         voice_style=VOICE_STYLES[0],
         with_animation=False,
         with_breathing=False,
+        config=DEFAULT_CONFIG,
     ):
         super().__init__(name)
 
@@ -122,6 +121,13 @@ class QiRobot(Robot):
         if not self.robot_is_connected():
             logger.warning("No robot connected in constructor")
             return
+
+        with open(config) as f:
+            self.config = yaml.safe_load(f)
+
+        self.username = self.config.get("username")
+        self.usb_server = self.config.get("usb_server")
+        self.app_prefix = self.config.get("app_prefix")
 
         self.battery_service = self.session.service("ALBattery")
 
@@ -448,6 +454,7 @@ def qirobot_builder(
     tts_dictionary=None,
     with_animation=False,
     with_breathing=False,
+    config=DEFAULT_CONFIG,
     **_ignored,
 ):
     return QiRobot(
@@ -464,6 +471,7 @@ def qirobot_builder(
         tts_dictionary=tts_dictionary,
         with_animation=with_animation,
         with_breathing=with_breathing,
+        config=config,
     )
 
 
@@ -488,6 +496,7 @@ class Nao(QiRobot):
         tts_dictionary=None,
         with_animation=False,
         with_breathing=False,
+        config=DEFAULT_CONFIG,
     ):
         super().__init__(
             name=name,
@@ -503,6 +512,7 @@ class Nao(QiRobot):
             tts_dictionary=tts_dictionary,
             with_animation=with_animation,
             with_breathing=with_breathing,
+            config=config,
         )
 
         if not utils.is_reachable(ip):
@@ -528,6 +538,7 @@ def nao_builder(
     tts_dictionary=None,
     with_animation=False,
     with_breathing=False,
+    config=DEFAULT_CONFIG,
     **_ignored,
 ):
     return Nao(
@@ -544,6 +555,7 @@ def nao_builder(
         tts_dictionary=tts_dictionary,
         with_animation=with_animation,
         with_breathing=with_breathing,
+        config=config,
     )
 
 
@@ -574,6 +586,7 @@ class Pepper(QiRobot):
         tts_dictionary=None,
         with_animation=False,
         with_breathing=False,
+        config=DEFAULT_CONFIG,
         tablet_images=None,
     ):
         super().__init__(
@@ -590,6 +603,7 @@ class Pepper(QiRobot):
             tts_dictionary=tts_dictionary,
             with_animation=with_animation,
             with_breathing=with_breathing,
+            config=config,
         )
         self.tablet_images = {}
         self.empty_page = None
@@ -615,19 +629,19 @@ class Pepper(QiRobot):
         return s
 
     def copy_empty_page(self):
-        """"""
+        """Copy the empty webpage to the robot"""
         root = pathlib.Path(__file__).parent.parent
         local_empty_page = root / "resources" / "empty.html"
 
-        directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html"
+        directory_on_robot = f"{self.app_prefix}/{self.name}/html"
 
         cmd = f"mkdir -p {directory_on_robot}"
-        utils.run_command_on_host(NAO, self.ip, cmd)
+        utils.run_command_on_host(self.username, self.ip, cmd)
 
         path_on_robot = f"{directory_on_robot}/empty.html"
-        utils.copy_file_on_host(NAO, self.ip, local_empty_page, path_on_robot)
+        utils.copy_file_on_host(self.username, self.ip, local_empty_page, path_on_robot)
 
-        path_on_usb_server = f"{USB_SERVER}/{self.name}/empty.html"
+        path_on_usb_server = f"{self.usb_server}/{self.name}/empty.html"
 
         return path_on_usb_server
 
@@ -697,15 +711,17 @@ class Pepper(QiRobot):
             logger.error(f"Image `{path}` not found on the disk.")
 
         dry_run = False
-        directory_on_robot = f"{NAO_APP_PREFIX}/{self.name}/html"
+        directory_on_robot = f"{self.app_prefix}/{self.name}/html"
         cmd = f"mkdir -p {directory_on_robot}"
-        utils.run_command_on_host(NAO, self.ip, cmd, dry_run=dry_run)
+        utils.run_command_on_host(self.username, self.ip, cmd, dry_run=dry_run)
 
         filename = pathlib.Path(path).name
         path_on_robot = f"{directory_on_robot}/{filename}"
-        utils.copy_file_on_host(NAO, self.ip, path, path_on_robot, dry_run=dry_run)
+        utils.copy_file_on_host(
+            self.username, self.ip, path, path_on_robot, dry_run=dry_run
+        )
 
-        path_on_usb_server = f"{USB_SERVER}/{self.name}/{filename}"
+        path_on_usb_server = f"{self.usb_server}/{self.name}/{filename}"
 
         if key not in self.tablet_images:
             logger.info(f"Adding image `{path}` with key '{key}'.")
@@ -783,6 +799,7 @@ def pepper_builder(
     with_animation=False,
     with_breathing=False,
     tablet_images=None,
+    config=DEFAULT_CONFIG,
     **_ignored,
 ):
     return Pepper(
@@ -799,6 +816,7 @@ def pepper_builder(
         tts_dictionary=tts_dictionary,
         with_animation=with_animation,
         with_breathing=with_breathing,
+        config=config,
         tablet_images=tablet_images,
     )
 
