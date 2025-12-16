@@ -39,5 +39,8 @@ run_robot_func = "irt.scripts.run_robot_func:main"
 [tool.setuptools]
 packages = ["irt"]
 
+[tool.setuptools.package-data]
+irt = ["configs/*.yaml"]
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
