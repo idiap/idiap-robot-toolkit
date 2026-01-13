@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024-2025 Idiap Research Institute <contact@idiap.ch>
+# SPDX-FileCopyrightText: 2024-2026 Idiap Research Institute <contact@idiap.ch>
 # SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
 # SPDX-License-Identifier: MIT
 
