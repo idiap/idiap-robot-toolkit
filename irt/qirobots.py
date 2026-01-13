@@ -630,7 +630,7 @@ class Pepper(QiRobot):
 
     def copy_empty_page(self):
         """Copy the empty webpage to the robot"""
-        root = pathlib.Path(__file__).parent.parent
+        root = pathlib.Path(__file__).parent
         local_empty_page = root / "resources" / "empty.html"
 
         directory_on_robot = f"{self.app_prefix}/{self.name}/html"
