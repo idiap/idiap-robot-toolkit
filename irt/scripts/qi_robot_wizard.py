@@ -15,7 +15,7 @@ from qtpy import QtCore
 from qtpy import QtGui
 from qtpy import QtWidgets
 
-import irt
+import idiap_robot_toolkit as irt
 
 
 description = """GUI to control a robot"""

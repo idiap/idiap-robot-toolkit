@@ -7,7 +7,7 @@
 import argparse
 import pathlib
 
-import irt
+import idiap_robot_toolkit as irt
 
 description = """Call a function from the robot"""
 

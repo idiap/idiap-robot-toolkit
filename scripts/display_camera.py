@@ -11,7 +11,7 @@ import cv2
 
 from loguru import logger
 
-import irt
+import idiap_robot_toolkit as irt
 
 WINDOW_NAME = "Idiap Visualization Window"
 

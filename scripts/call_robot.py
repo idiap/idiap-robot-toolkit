@@ -9,7 +9,7 @@ import argparse
 
 from loguru import logger
 
-import irt
+import idiap_robot_toolkit as irt
 
 
 if __name__ == "__main__":
