@@ -6,7 +6,7 @@
 
 import unittest
 
-import irt
+import idiap_robot_toolkit as irt
 
 
 class TestPepper(unittest.TestCase):
