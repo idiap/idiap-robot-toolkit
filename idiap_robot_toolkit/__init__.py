@@ -6,7 +6,7 @@
 
 import importlib.metadata
 
-__version__ = importlib.metadata.version("irt")
+__version__ = importlib.metadata.version("idiap_robot_toolkit")
 
 from .fake import FakeRobot as FakeRobot
 from .qirobots import QiRobot as QiRobot
