@@ -5,13 +5,10 @@
 
 name: Publish Python distribution to PyPI
 
-# on: push
 on:
   push:
-    paths:
-      - "pyproject.toml"
-  release:
-    types: [published]
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   build:
