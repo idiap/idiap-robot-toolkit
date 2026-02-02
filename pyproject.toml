@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "idiap_robot_toolkit"
-version = "0.5.0"
+version = "0.6.0"
 description = "Idiap's Robot Toolkit"
 authors = [
   {name = "Olivier Canévet", email = "olivier.canevet@idiap.ch"},
@@ -33,14 +33,14 @@ requires-python = ">=3.7"
 dynamic = ["dependencies"]
 
 [project.scripts]
-qi_robot_wizard = "irt.scripts.qi_robot_wizard:main"
-run_robot_func = "irt.scripts.run_robot_func:main"
+qi_robot_wizard = "idiap_robot_toolkit.scripts.qi_robot_wizard:main"
+run_robot_func = "idiap_robot_toolkit.scripts.run_robot_func:main"
 
 [tool.setuptools]
-packages = ["irt", "irt.scripts"]
+packages = ["idiap_robot_toolkit", "idiap_robot_toolkit.scripts"]
 
 [tool.setuptools.package-data]
-irt = ["configs/*.yaml", "resources/empty.html"]
+idiap_robot_toolkit = ["configs/*.yaml", "resources/empty.html"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
