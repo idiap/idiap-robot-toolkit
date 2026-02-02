@@ -64,9 +64,9 @@ irt_version:
     - linux
     - docker
   script:
-    - pip uninstall irt
+    - pip uninstall idiap_robot_toolkit
     - pip install -e .
-    - python3 -c "import irt ; print(irt.__version__)"
+    - python3 -c "import idiap_robot_toolkit as irt ; print(irt.__version__)"
 
 
 test_utils:
@@ -78,7 +78,7 @@ test_utils:
     - linux
     - docker
   script:
-    - pip uninstall irt
+    - pip uninstall idiap_robot_toolkit
     - pip install -e .
     - python3 -m unittest tests/test_utils.py -v
 
@@ -92,7 +92,7 @@ test_robot:
     - linux
     - docker
   script:
-    - pip uninstall irt
+    - pip uninstall idiap_robot_toolkit
     - pip install -e .
     - python3 -m unittest tests/test_robot.py -v
 
@@ -106,7 +106,7 @@ test_fake:
     - linux
     - docker
   script:
-    - pip uninstall irt
+    - pip uninstall idiap_robot_toolkit
     - pip install -e .
     - python3 -m unittest tests/test_fake.py -v
 
