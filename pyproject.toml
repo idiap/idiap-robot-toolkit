@@ -13,11 +13,12 @@ description = "Idiap's Robot Toolkit"
 authors = [
   {name = "Olivier Canévet", email = "olivier.canevet@idiap.ch"},
 ]
-license = { file = "LICENSE" }
+license = "MIT"
 readme = "README.md"
 
 classifiers = [
   "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.7",
@@ -41,10 +42,16 @@ qi_robot_wizard = "idiap_robot_toolkit.scripts.qi_robot_wizard:main"
 run_robot_func = "idiap_robot_toolkit.scripts.run_robot_func:main"
 
 [tool.setuptools]
-packages = ["idiap_robot_toolkit", "idiap_robot_toolkit.scripts"]
+packages = [
+  "idiap_robot_toolkit",
+  "idiap_robot_toolkit.scripts",
+]
 
 [tool.setuptools.package-data]
-idiap_robot_toolkit = ["configs/*.yaml", "resources/empty.html"]
+idiap_robot_toolkit = [
+  "configs/*.yaml",
+  "resources/empty.html",
+]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
