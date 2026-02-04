@@ -30,9 +30,6 @@ build_image:
     - linux
     - docker
   script:
-    - echo "machine gitlab.idiap.ch" > .netrc
-    - echo "login biped" >> .netrc
-    - echo "password $BIPED_REPO" >> .netrc
     - docker build --build-arg PYTHON_MAJOR=$PYTHON_MAJOR --build-arg PYTHON_MINOR=$PYTHON_MINOR --tag $IMAGE_NAME .
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker push $IMAGE_NAME
