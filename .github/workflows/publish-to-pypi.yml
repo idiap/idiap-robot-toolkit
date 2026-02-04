@@ -50,7 +50,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/idiap_robot_toolkit
+      url: https://pypi.org/p/idiap-robot-toolkit
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
