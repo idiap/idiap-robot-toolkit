@@ -79,3 +79,26 @@ robot.wake_up()
 robot.say("Hello! I am Pepper.")
 _, frame = robot.get_frame()
 ```
+
+## Troubleshooting
+
+### Qt platform plugin
+
+Sometimes the following error occurs:
+
+```
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "/.../lib/python3.12/site-packages/cv2/qt/plugins" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: minimal, minimalegl, eglfs, vkkhrdisplay, offscreen, vnc, xcb, linuxfb, wayland-brcm, wayland-egl, wayland.
+```
+
+This can be solved by installing the conda version of PySide6 instead
+of the Python version:
+
+```
+(base) $ conda create -y -n irt python=3.12 pip pyside6
+(base) $ conda activate irt
+(irt) $ pip install idiap-robot-toolkit
+```
