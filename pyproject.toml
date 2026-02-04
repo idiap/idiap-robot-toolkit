@@ -32,6 +32,10 @@ requires-python = ">=3.7"
 
 dynamic = ["dependencies"]
 
+[project.urls]
+Documentation = "https://idiap.github.io/idiap-robot-toolkit"
+Repository = "https://github.com/idiap/idiap-robot-toolkit"
+
 [project.scripts]
 qi_robot_wizard = "idiap_robot_toolkit.scripts.qi_robot_wizard:main"
 run_robot_func = "idiap_robot_toolkit.scripts.run_robot_func:main"
