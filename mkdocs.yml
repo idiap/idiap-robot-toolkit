@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 site_name: The Idiap Robot Toolkit
-site_url: https://idiap.github.io/idiap_robot_toolkit/
-repo_url: https://github.com/idiap/idiap_robot_toolkit
+site_url: https://idiap.github.io/idiap-robot-toolkit/
+repo_url: https://github.com/idiap/idiap-robot-toolkit
 copyright: Copyright 2025-2026 Idiap Research Institute
 
 use_directory_urls: false
