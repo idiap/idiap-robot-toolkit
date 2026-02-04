@@ -33,6 +33,7 @@ jobs:
       run: |
         perl -i.bak -pe 's/\[(.*)\]\((?!http)\.?\/?(.*)\.([a-z]+)\)/[\1](https:\/\/raw.github.com\/${{ github.repository_owner }}\/${{ github.event.repository.name }}\/${{ github.sha }}\/\2.\3)/g' README.md
         perl -i.bak -pe 's/\[(.*)\]\((?!http)\.?\/?(.*)\)/[\1](https:\/\/github.com\/${{ github.repository_owner }}\/${{ github.event.repository.name }}\/tree\/${{ github.sha }}\/\2)/g' README.md
+        perl -i.bak -pe 's/<img\s+src="\.?\/?([^"]+)\.([a-z]+)"/<img src="https:\/\/raw.github.com\/${{ github.repository_owner }}\/${{ github.event.repository.name }}\/${{ github.sha }}\/\1.\2"/g' README.md
         rm README.md.bak
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
