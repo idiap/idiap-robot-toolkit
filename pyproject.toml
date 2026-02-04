@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "idiap_robot_toolkit"
-version = "0.6.3"
+version = "1.0.0"
 description = "Idiap's Robot Toolkit"
 authors = [
   {name = "Olivier Canévet", email = "olivier.canevet@idiap.ch"},
