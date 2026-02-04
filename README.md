@@ -12,16 +12,21 @@ A toolkit to handle robots with Python.
 
 ## Installation
 
+The Idiap Robot Toolkit is available on [PyPi](https://pypi.org/project/idiap-robot-toolkit)
+and can be installed via `pip`:
+
+```bash
+$ pip install idiap-robot-toolkit
+```
+
 When using Qt6 through PySide6, install it with conda:
 
 ```bash
 (base) $ conda create -y -n irt python=3.11 pip pyside6
-```
-
-and then
-
-```bash
-pip install -e .
+(base) $ conda activate irt
+(irt) $ pip install idiap-robot-toolkit
+# or
+(irt) $ pip install -e .
 ```
 
 ## Using the Wizard-of-Oz GUI
