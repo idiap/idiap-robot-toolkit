@@ -1,0 +1,13 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Idiap Research Institute <contact@idiap.ch>
+ * SPDX-FileContributor: Olivier Canévet <olivier.canevet@idiap.ch>
+ * SPDX-License-Identifier: CC-BY-SA-4.0
+ */
+
+:root > * {
+    --md-footer-fg-color: var(--md-primary-bg-color);
+    --md-footer-fg-color--light: var(--md-primary-bg-color--light);
+    --md-footer-fg-color--lighter: var(--md-primary-bg-color--lighter);
+    --md-footer-bg-color: var(--md-primary-fg-color);
+    --md-footer-bg-color--dark: var(--md-primary-fg-color--dark);
+}
